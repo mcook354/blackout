@@ -10,7 +10,6 @@ const allPositions = [
 const App = () => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [positionOverrides, setPositionOverrides] = useState({});
   const [showLogic, setShowLogic] = useState(false);
 
   useEffect(() => {
@@ -28,12 +27,15 @@ const App = () => {
               .filter((pos) => !pos.isBest && pos.level >= bestLevel - 2)
               .map((pos) => ({ position: pos.position, level: pos.level }));
 
+            // Retrieve stored position override from localStorage
+            const storedPosition = localStorage.getItem(`player-${player.id}-position`);
+
             return {
               id: player.id,
               firstName: player.attributes.firstName,
               lastName: player.attributes.lastName,
               originalBestPosition: bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1),
-              bestPosition: bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1),
+              bestPosition: storedPosition || bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1), // ✅ Apply stored override
               bestLevel,
               age: player.attributes.age,
               successorStatus: getSuccessorStatus(bestLevel),
@@ -65,15 +67,15 @@ const App = () => {
   };
 
   const handlePositionChange = (playerId, newPosition) => {
-    setPositionOverrides((prev) => ({ ...prev, [playerId]: newPosition }));
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.id === playerId ? { ...player, bestPosition: newPosition } : player
+      )
+    );
+    localStorage.setItem(`player-${playerId}-position`, newPosition); // ✅ Store change
   };
 
-  const playersWithOverrides = players.map((player) => ({
-    ...player,
-    bestPosition: positionOverrides[player.id] || player.originalBestPosition,
-  }));
-
-  const groupedPlayers = playersWithOverrides.reduce((acc, player) => {
+  const groupedPlayers = players.reduce((acc, player) => {
     acc[player.bestPosition] = acc[player.bestPosition] || [];
     acc[player.bestPosition].push(player);
     return acc;

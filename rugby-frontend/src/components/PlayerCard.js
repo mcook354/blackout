@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./PlayerCard.css"; // Ensure CSS reflects the necessary changes
 
 const TARGET_PHYSICALS = {
@@ -15,21 +15,31 @@ const TARGET_PHYSICALS = {
 };
 
 const PlayerCard = ({ player, onPositionChange, allPositions }) => {
+  const storedPosition = localStorage.getItem(`player-${player.id}-position`);
+  const [selectedPosition, setSelectedPosition] = useState(storedPosition || player.bestPosition);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState(player.bestPosition);
   const [tooltip, setTooltip] = useState({ visible: false, content: "", x: 0, y: 0 });
+
+  useEffect(() => {
+    localStorage.setItem(`player-${player.id}-position`, selectedPosition);
+  }, [selectedPosition, player.id]);
 
   const handleChange = (e) => {
     const newPosition = e.target.value;
-    setSelectedPosition(newPosition);
-    onPositionChange(player.id, newPosition === "Reset" ? player.originalBestPosition : newPosition);
+    if (newPosition === "Reset") {
+      localStorage.removeItem(`player-${player.id}-position`);
+      setSelectedPosition(player.originalBestPosition);
+      onPositionChange(player.id, player.originalBestPosition);
+    } else {
+      setSelectedPosition(newPosition);
+      onPositionChange(player.id, newPosition);
+    }
   };
 
-  const targetLevels = TARGET_PHYSICALS[player.bestPosition] || {};
+  const targetLevels = TARGET_PHYSICALS[selectedPosition] || {};
   const physicalAttributes = player.physicalAttributes || {};
   const predictedAttributes = player.predictedPhysicalAttributes || {};
 
-  // Remove Height and Weight
   const filteredAttributes = Object.fromEntries(
     Object.entries(physicalAttributes).filter(([key]) => !["height", "weight", "baseweight"].includes(key.toLowerCase()))
   );

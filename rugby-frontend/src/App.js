@@ -14,7 +14,7 @@ const App = () => {
   const [showLogic, setShowLogic] = useState(false);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/players")
+    fetch("https://blackout-it05.onrender.com/players")
       .then((res) => res.json())
       .then((data) => {
         if (data.data) {

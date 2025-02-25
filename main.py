@@ -5,16 +5,23 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# ✅ Enable CORS for React frontend
+# ✅ Explicitly list your frontend URL(s)
+origins = [
+    "https://blackout-topaz.vercel.app",  # ✅ Frontend on Vercel
+    "http://localhost:3000",              # ✅ Local Development
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://blackout-topaz.vercel.app/",
-                   "http://localhost:3000"
-                   ],
+    allow_origins=origins,  # 🔥 Only allow frontend and local dev
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # 🔥 Allow all HTTP methods
+    allow_headers=["*"],  # 🔥 Allow all headers
 )
+
+@app.get("/")
+def read_root():
+    return {"message": "CORS fixed!"}
 
 # ✅ API Setup
 API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4"

@@ -67,9 +67,6 @@ const PlayerCard = ({ player, onPositionChange, allPositions }) => {
       )}
 
       <p>Age: {player.age}</p>
-      {player.age <= 25 && (
-        <p className="predicted-peak">🌟 Predicted Peak Level: {player.predictedPeakLevel}</p>
-      )}
 
       <p className="player-market-price">Market Price: ${player.marketPrice.toLocaleString()}</p>
 

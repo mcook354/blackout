@@ -17,40 +17,7 @@ const App = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.data) {
-          const processedPlayers = data.data.map((player) => {
-            const levels = player.attributes.levels || [];
-            const bestPositionData = levels.find((pos) => pos.isBest);
-            const bestPosition = bestPositionData?.position || "Unknown";
-            const bestLevel = bestPositionData?.level || 0;
-
-            const alternativePositions = levels
-              .filter((pos) => !pos.isBest && pos.level >= bestLevel - 2)
-              .map((pos) => ({ position: pos.position, level: pos.level }));
-
-            // Retrieve stored position override from localStorage
-            const storedPosition = localStorage.getItem(`player-${player.id}-position`);
-
-            return {
-              id: player.id,
-              firstName: player.attributes.firstName,
-              lastName: player.attributes.lastName,
-              originalBestPosition: bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1),
-              bestPosition: storedPosition || bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1), // ✅ Apply stored override
-              bestLevel,
-              age: player.attributes.age,
-              successorStatus: getSuccessorStatus(bestLevel),
-              alternativePositions,
-              marketPrice: player.attributes.marketPrice,
-              physicalAttributes: player.attributes.physicalAttributes,
-              predictedPhysicalAttributes: player.attributes.predictedPhysicalAttributes || {},
-              skillLevels: player.attributes.skillLevels,
-              statistics: player.statistics || {
-                friendlyMatchesPlayed: 0,
-                ladderMatchesPlayed: 0,
-              },
-            };
-          });
-          setPlayers(processedPlayers);
+          setPlayers(data.data);
         }
         setLoading(false);
       })
@@ -60,19 +27,22 @@ const App = () => {
       });
   }, []);
 
-  const getSuccessorStatus = (level) => {
-    if (level >= 78) return "Ready";
-    if (level >= 70) return "Almost Ready";
-    return "In Development";
-  };
-
-  const handlePositionChange = (playerId, newPosition) => {
+  const handlePositionChange = async (playerId, newPosition) => {
     setPlayers((prevPlayers) =>
       prevPlayers.map((player) =>
         player.id === playerId ? { ...player, bestPosition: newPosition } : player
       )
     );
-    localStorage.setItem(`player-${playerId}-position`, newPosition); // ✅ Store change
+
+    try {
+      await fetch(`https://blackout-it05.onrender.com/players/${playerId}/update_position`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ new_position: newPosition }),
+      });
+    } catch (error) {
+      console.error("Failed to update position", error);
+    }
   };
 
   const groupedPlayers = players.reduce((acc, player) => {
@@ -89,10 +59,7 @@ const App = () => {
     <div className="app-container">
       <h1>🏉 Blackout Rugby Manager</h1>
 
-      <button
-        onClick={() => setShowLogic(!showLogic)}
-        className="button"
-      >
+      <button onClick={() => setShowLogic(!showLogic)} className="button">
         {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
       </button>
 

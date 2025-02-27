@@ -15,27 +15,24 @@ const TARGET_PHYSICALS = {
 };
 
 const PlayerCard = ({ player, onPositionChange, allPositions }) => {
-  const [selectedPosition, setSelectedPosition] = useState(player.bestPosition);
+  const storedPosition = localStorage.getItem(`player-${player.id}-position`);
+  const [selectedPosition, setSelectedPosition] = useState(storedPosition || player.bestPosition);
   const [isExpanded, setIsExpanded] = useState(false);
   const [tooltip, setTooltip] = useState({ visible: false, content: "", x: 0, y: 0 });
 
   useEffect(() => {
-    setSelectedPosition(player.bestPosition);
-  }, [player.bestPosition]);
+    localStorage.setItem(`player-${player.id}-position`, selectedPosition);
+  }, [selectedPosition, player.id]);
 
-  const handleChange = async (e) => {
+  const handleChange = (e) => {
     const newPosition = e.target.value;
-    setSelectedPosition(newPosition);
-
-    try {
-      await fetch(`https://blackout-it05.onrender.com/players/${player.id}/update_position`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ new_position: newPosition }),
-      });
+    if (newPosition === "Reset") {
+      localStorage.removeItem(`player-${player.id}-position`);
+      setSelectedPosition(player.originalBestPosition);
+      onPositionChange(player.id, player.originalBestPosition);
+    } else {
+      setSelectedPosition(newPosition);
       onPositionChange(player.id, newPosition);
-    } catch (error) {
-      console.error("Failed to update position", error);
     }
   };
 
@@ -70,9 +67,6 @@ const PlayerCard = ({ player, onPositionChange, allPositions }) => {
       )}
 
       <p>Age: {player.age}</p>
-      {player.age <= 25 && (
-        <p className="predicted-peak">🌟 Predicted Peak Level: {player.predictedPeakLevel}</p>
-      )}
 
       <p className="player-market-price">Market Price: ${player.marketPrice.toLocaleString()}</p>
 

@@ -10,7 +10,6 @@ const allPositions = [
 const App = () => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [positionOverrides, setPositionOverrides] = useState({});
   const [showLogic, setShowLogic] = useState(false);
 
   useEffect(() => {
@@ -19,7 +18,7 @@ const App = () => {
       .then((data) => {
         if (data.data) {
           const processedPlayers = data.data.map((player) => {
-            const levels = player.levels || [];
+            const levels = player.attributes.levels || [];
             const bestPositionData = levels.find((pos) => pos.isBest);
             const bestPosition = bestPositionData?.position || "Unknown";
             const bestLevel = bestPositionData?.level || 0;
@@ -28,20 +27,23 @@ const App = () => {
               .filter((pos) => !pos.isBest && pos.level >= bestLevel - 2)
               .map((pos) => ({ position: pos.position, level: pos.level }));
 
+            // Retrieve stored position override from localStorage
+            const storedPosition = localStorage.getItem(`player-${player.id}-position`);
+
             return {
               id: player.id,
-              firstName: player.firstName,
-              lastName: player.lastName,
+              firstName: player.attributes.firstName,
+              lastName: player.attributes.lastName,
               originalBestPosition: bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1),
-              bestPosition: bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1),
+              bestPosition: storedPosition || bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1), // ✅ Apply stored override
               bestLevel,
-              age: player.age,
+              age: player.attributes.age,
               successorStatus: getSuccessorStatus(bestLevel),
               alternativePositions,
-              marketPrice: player.marketPrice,
-              physicalAttributes: player.physicalAttributes,
-              predictedPhysicalAttributes: player.predictedPhysicalAttributes || {},
-              skillLevels: player.skillLevels,
+              marketPrice: player.attributes.marketPrice,
+              physicalAttributes: player.attributes.physicalAttributes,
+              predictedPhysicalAttributes: player.attributes.predictedPhysicalAttributes || {},
+              skillLevels: player.attributes.skillLevels,
               statistics: player.statistics || {
                 friendlyMatchesPlayed: 0,
                 ladderMatchesPlayed: 0,
@@ -64,32 +66,16 @@ const App = () => {
     return "In Development";
   };
 
-  const handlePositionChange = async (playerId, newPosition) => {
-    setPositionOverrides((prev) => ({ ...prev, [playerId]: newPosition }));
-
-    try {
-      await fetch(`https://blackout-it05.onrender.com/players/${playerId}/update_position`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ new_position: newPosition }),
-      });
-
-      setPlayers((prevPlayers) =>
-        prevPlayers.map((player) =>
-          player.id === playerId ? { ...player, bestPosition: newPosition } : player
-        )
-      );
-    } catch (error) {
-      console.error("Failed to update position", error);
-    }
+  const handlePositionChange = (playerId, newPosition) => {
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) =>
+        player.id === playerId ? { ...player, bestPosition: newPosition } : player
+      )
+    );
+    localStorage.setItem(`player-${playerId}-position`, newPosition); // ✅ Store change
   };
 
-  const playersWithOverrides = players.map((player) => ({
-    ...player,
-    bestPosition: positionOverrides[player.id] || player.originalBestPosition,
-  }));
-
-  const groupedPlayers = playersWithOverrides.reduce((acc, player) => {
+  const groupedPlayers = players.reduce((acc, player) => {
     acc[player.bestPosition] = acc[player.bestPosition] || [];
     acc[player.bestPosition].push(player);
     return acc;
@@ -103,7 +89,10 @@ const App = () => {
     <div className="app-container">
       <h1>🏉 Blackout Rugby Manager</h1>
 
-      <button onClick={() => setShowLogic(!showLogic)} className="button">
+      <button
+        onClick={() => setShowLogic(!showLogic)}
+        className="button"
+      >
         {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
       </button>
 

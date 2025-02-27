@@ -10,6 +10,7 @@ const allPositions = [
 const App = () => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [positionOverrides, setPositionOverrides] = useState({});
   const [showLogic, setShowLogic] = useState(false);
 
   useEffect(() => {
@@ -17,7 +18,37 @@ const App = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.data) {
-          setPlayers(data.data);
+          const processedPlayers = data.data.map((player) => {
+            const levels = player.levels || [];
+            const bestPositionData = levels.find((pos) => pos.isBest);
+            const bestPosition = bestPositionData?.position || "Unknown";
+            const bestLevel = bestPositionData?.level || 0;
+
+            const alternativePositions = levels
+              .filter((pos) => !pos.isBest && pos.level >= bestLevel - 2)
+              .map((pos) => ({ position: pos.position, level: pos.level }));
+
+            return {
+              id: player.id,
+              firstName: player.firstName,
+              lastName: player.lastName,
+              originalBestPosition: bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1),
+              bestPosition: bestPosition.charAt(0).toUpperCase() + bestPosition.slice(1),
+              bestLevel,
+              age: player.age,
+              successorStatus: getSuccessorStatus(bestLevel),
+              alternativePositions,
+              marketPrice: player.marketPrice,
+              physicalAttributes: player.physicalAttributes,
+              predictedPhysicalAttributes: player.predictedPhysicalAttributes || {},
+              skillLevels: player.skillLevels,
+              statistics: player.statistics || {
+                friendlyMatchesPlayed: 0,
+                ladderMatchesPlayed: 0,
+              },
+            };
+          });
+          setPlayers(processedPlayers);
         }
         setLoading(false);
       })
@@ -27,12 +58,14 @@ const App = () => {
       });
   }, []);
 
+  const getSuccessorStatus = (level) => {
+    if (level >= 78) return "Ready";
+    if (level >= 70) return "Almost Ready";
+    return "In Development";
+  };
+
   const handlePositionChange = async (playerId, newPosition) => {
-    setPlayers((prevPlayers) =>
-      prevPlayers.map((player) =>
-        player.id === playerId ? { ...player, bestPosition: newPosition } : player
-      )
-    );
+    setPositionOverrides((prev) => ({ ...prev, [playerId]: newPosition }));
 
     try {
       await fetch(`https://blackout-it05.onrender.com/players/${playerId}/update_position`, {
@@ -40,12 +73,23 @@ const App = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ new_position: newPosition }),
       });
+
+      setPlayers((prevPlayers) =>
+        prevPlayers.map((player) =>
+          player.id === playerId ? { ...player, bestPosition: newPosition } : player
+        )
+      );
     } catch (error) {
       console.error("Failed to update position", error);
     }
   };
 
-  const groupedPlayers = players.reduce((acc, player) => {
+  const playersWithOverrides = players.map((player) => ({
+    ...player,
+    bestPosition: positionOverrides[player.id] || player.originalBestPosition,
+  }));
+
+  const groupedPlayers = playersWithOverrides.reduce((acc, player) => {
     acc[player.bestPosition] = acc[player.bestPosition] || [];
     acc[player.bestPosition].push(player);
     return acc;

@@ -64,6 +64,20 @@ def predict_physical_attribute_growth(player):
 
     projected_attributes = {}
 
+    # Example Player Data
+    player_example = {
+        "age": 19,
+        "bestPosition": "Prop",
+        "physicalAttributes": {
+            "strength": 50,
+            "agility": 40,
+            "power": 45,
+            "endurance": 38,
+            "acceleration": 30,
+            "speed": 35,
+            "coordination": 33
+        }
+    }
     for attr in attributes.keys():
         current_min = attributes[attr]
         current_max = attributes[attr]

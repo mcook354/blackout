@@ -19,7 +19,7 @@ const App = () => {
   ];
 
   useEffect(() => {
-    fetch(`https://https://blackout-it05.onrender.com/players?club_id=${clubId}`)
+    fetch(`https://blackout-it05.onrender.com/players?club_id=${clubId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.data) {
@@ -64,7 +64,7 @@ const App = () => {
         console.error("Error fetching players:", error);
         setLoading(false);
       });
-  }, []);
+  }, [clubId]);
 
   const getSuccessorStatus = (level) => {
     if (level >= 78) return "Ready";

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PlayerCard from "./components/PlayerCard";
 import "./App.css"; // ✅ Import the CSS for dark theme
 
+
 const allPositions = [
   "Prop", "Hooker", "Lock", "Flanker", "No8",
   "Scrumhalf", "Flyhalf", "Center", "Wing", "Fullback"
@@ -11,9 +12,14 @@ const App = () => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLogic, setShowLogic] = useState(false);
+  const [clubId, setClubId] = useState("3ac80dc7-3c45-49c5-9b2a-e2c9c8972342"); // Default club
+  const clubOptions = [
+    { id: "3ac80dc7-3c45-49c5-9b2a-e2c9c8972342", name: "Crushers" },
+    { id: "3cedc084-6407-4fc6-be90-fbcaa6f5ef66", name: "Graunchers" }
+  ];
 
   useEffect(() => {
-    fetch("https://blackout-it05.onrender.com/players")
+    fetch(`https://https://blackout-it05.onrender.com/players?club_id=${clubId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.data) {
@@ -88,6 +94,14 @@ const App = () => {
   return (
     <div className="app-container">
       <h1>🏉 Blackout Rugby Manager</h1>
+      <label>Select Club:</label>
+      <select value={clubId} onChange={(e) => setClubId(e.target.value)}>
+        {clubOptions.map((club) => (
+          <option key={club.id} value={club.id}>
+            {club.name}
+          </option>
+        ))}
+      </select>
 
       <button
         onClick={() => setShowLogic(!showLogic)}

@@ -93,20 +93,22 @@ const App = () => {
 
   return (
     <div className="app-container">
-      <h1>🏉 Blackout Rugby Manager</h1>
-      <label>Select Club:</label>
-      <select value={clubId} onChange={(e) => setClubId(e.target.value)}>
-        {clubOptions.map((club) => (
-          <option key={club.id} value={club.id}>
-            {club.name}
-          </option>
-        ))}
-      </select>
+      <div className="header-container">
+        <div className="dropdown-container">
+          <label>Select Club:</label>
+          <select value={clubId} onChange={(e) => setClubId(e.target.value)}>
+            {clubOptions.map((club) => (
+              <option key={club.id} value={club.id}>
+                {club.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <h1>🏉 Blackout Rugby Manager</h1>
+      </div>
 
-      <button
-        onClick={() => setShowLogic(!showLogic)}
-        className="button"
-      >
+      <button onClick={() => setShowLogic(!showLogic)} className="button">
         {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
       </button>
 

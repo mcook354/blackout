@@ -4,7 +4,7 @@
 
 /* 🌑 Global Dark Theme */
 body {
-  background-color: #121212;
+  background-color: #181818;
   color: #e0e0e0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
@@ -16,6 +16,9 @@ h1, h2 {
   color: #ffcc00;
   text-align: center;
   margin: 20px 0;
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* 📋 Global Grid for Player Cards */
@@ -23,12 +26,14 @@ h1, h2 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;
+  padding: 20px;
 }
 
 /* Responsive adjustments for mobile */
 @media (max-width: 768px) {
   .player-card-grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    padding: 10px;
   }
 }
 
@@ -36,12 +41,15 @@ h1, h2 {
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin: 10px 0;
+  margin: 15px 0;
+  background-color: #222;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 .table th, .table td {
   border: 1px solid #444;
-  padding: 8px;
+  padding: 12px;
   text-align: center;
 }
 
@@ -49,6 +57,7 @@ h1, h2 {
   background-color: #2c2c2c;
   color: #ffcc00;
   font-weight: bold;
+  text-transform: uppercase;
 }
 
 .table tr:nth-child(even) {
@@ -69,36 +78,41 @@ h1, h2 {
   background-color: #2c2c2c;
   color: #e0e0e0;
   border: 1px solid #444;
-  border-radius: 4px;
-  padding: 5px;
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 16px;
 }
 
 .dropdown:focus {
   outline: none;
   border-color: #ffcc00;
-  box-shadow: 0 0 5px #ffcc00;
+  box-shadow: 0 0 6px #ffcc00;
 }
 
 /* 🔘 Buttons */
 .button {
   background-color: #ffcc00;
   color: #1e1e1e;
-  padding: 10px 20px;
+  padding: 12px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .button:hover {
   background-color: #ffaa00;
+  transform: scale(1.05);
 }
 
 /* 📦 Expandable Section */
 .expandable-section {
-  background-color: #1a1a1a;
+  background-color: #222;
   padding: 15px;
   border: 1px solid #444;
-  border-radius: 6px;
+  border-radius: 8px;
   margin: 10px 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

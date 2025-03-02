@@ -18,18 +18,11 @@ h1, h2 {
   margin: 20px 0;
 }
 
-/* 📋 Player Cards */
-.player-card {
-  background-color: #1e1e1e;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 16px;
-  transition: transform 0.2s, box-shadow 0.3s;
-}
-
-.player-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 20px rgba(255, 204, 0, 0.4);
+/* 📋 Global Grid for Player Cards */
+.player-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
 }
 
 /* Responsive adjustments for mobile */
@@ -37,24 +30,6 @@ h1, h2 {
   .player-card-grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
-}
-
-/* Two-column layout for player cards */
-.player-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 20px;
-}
-
-/* 🟢 Attribute Status */
-.attribute-success {
-  color: #4caf50;
-  font-weight: bold;
-}
-
-.attribute-fail {
-  color: #f44336;
-  font-weight: bold;
 }
 
 /* 📋 Summary Tables */

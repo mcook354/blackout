@@ -1,4 +1,8 @@
-/* Default player card */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🌑 Player Card Styles */
 .player-card {
   background-color: #1e1e1e;
   border: 1px solid #333;
@@ -9,15 +13,15 @@
   max-width: 100%;
 }
 
-/* Responsive adjustments for mobile */
+/* Responsive adjustments for player card on mobile */
 @media (max-width: 768px) {
   .player-card {
-      padding: 12px;
+    padding: 12px;
   }
   
   .player-card-header {
-      flex-direction: column;
-      align-items: flex-start;
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
@@ -64,10 +68,10 @@
   gap: 20px;
 }
 
-/* Responsive adjustments for mobile */
+/* Responsive adjustments for attributes on mobile */
 @media (max-width: 600px) {
   .attributes-container {
-      flex-direction: column;
+    flex-direction: column;
   }
 }
 

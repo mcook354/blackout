@@ -1,19 +1,7 @@
 import asyncio
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-# ✅ Replace with your actual Render PostgreSQL URL
-DATABASE_URL = "postgresql://blackout_user:d3CtxemBmxcJ0KrMNr9sju9Gap3T5Q2B@dpg-cv02tiggph6c73c6h0hg-a/blackout"
-
-# ✅ Set up the database connection
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
 
 app = FastAPI()
 
@@ -31,69 +19,9 @@ app.add_middleware(
     allow_headers=["*"],  # 🔥 Allow all headers
 )
 
-# ✅ Add Player model BELOW the database setup and BEFORE API endpoints
-class Player(Base):
-    __tablename__ = "players"
-
-    id = Column(Integer, primary_key=True, index=True)
-    first_name = Column(String, index=True)
-    last_name = Column(String, index=True)
-    best_position = Column(String)
-    age = Column(Integer)
-    market_price = Column(Integer)
-
-# ✅ Create tables in PostgreSQL (only runs if tables don't exist)
-Base.metadata.create_all(bind=engine)
-
-# ✅ Check that the BE is running
 @app.get("/")
 def read_root():
-    return {"message": "Backend is running!"}
-
-# ✅ Fetch all players
-@app.get("/players")
-def get_players():
-    db = SessionLocal()
-    players = db.query(Player).all()
-    db.close()
-    return {"data": players}
-
-# ✅ Add a new player
-class PlayerCreate(BaseModel):
-    first_name: str
-    last_name: str
-    best_position: str
-    age: int
-    market_price: int
-
-@app.post("/players")
-def add_player(player: PlayerCreate):
-    db = SessionLocal()
-    new_player = Player(**player.dict())
-    db.add(new_player)
-    db.commit()
-    db.refresh(new_player)
-    db.close()
-    return {"message": "Player added", "player": new_player}
-
-# ✅ Update player position
-class PositionUpdate(BaseModel):
-    new_position: str
-
-@app.put("/players/{player_id}/update_position")
-def update_position(player_id: int, update: PositionUpdate):
-    db = SessionLocal()
-    player = db.query(Player).filter(Player.id == player_id).first()
-
-    if not player:
-        raise HTTPException(status_code=404, detail="Player not found")
-
-    player.best_position = update.new_position
-    db.commit()
-    db.refresh(player)
-    db.close()
-
-    return {"message": "Position updated", "player": player}
+    return {"message": "CORS fixed!"}
 
 # ✅ API Setup
 API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4"
@@ -172,21 +100,6 @@ def predict_physical_attribute_growth(player):
 
     return projected_attributes
 
-# Example Player Data
-player_example = {
-    "age": 19,
-    "bestPosition": "Prop",
-    "physicalAttributes": {
-        "strength": 50,
-        "agility": 40,
-        "power": 45,
-        "endurance": 38,
-        "acceleration": 30,
-        "speed": 35,
-        "coordination": 33
-    }
-}
-
 # Run Prediction
 predicted_attributes = predict_physical_attribute_growth(player_example)
 print("Predicted Physical Attributes at Age 29:", predicted_attributes)
@@ -212,8 +125,8 @@ async def get_player_statistics(client, player_id):
 
 # ✅ Async endpoint to fetch players and their stats in parallel
 @app.get("/players")
-async def get_players():
-    players_url = f"{BASE_URL}players?filter%5Bclub%5D=3ac80dc7-3c45-49c5-9b2a-e2c9c8972342"
+async def get_players(club_id: str = Query(..., description="Club GUID to fetch players for")):
+    players_url = f"{BASE_URL}players?filter%5Bclub%5D={club_id}"
 
     async with httpx.AsyncClient(headers=HEADERS) as client:
         response = await client.get(players_url)

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PlayerCard from "./components/PlayerCard";
+import Academy from "./Academy";
 import "./App.css"; // ✅ Import the CSS for dark theme
 
 
@@ -9,6 +10,7 @@ const allPositions = [
 ];
 
 const App = () => {
+  const [activeTab, setActiveTab] = useState("players");
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLogic, setShowLogic] = useState(false);
@@ -104,14 +106,30 @@ const App = () => {
             ))}
           </select>
         </div>
-        
+  
         <h1>🏉 Blackout Rugby Manager</h1>
       </div>
-
+  
+      {/* Tabs for Players and Academy */}
+      <div className="tabs">
+        <button 
+          className={`tab-button ${activeTab === "players" ? "active" : ""}`} 
+          onClick={() => setActiveTab("players")}
+        >
+          Players
+        </button>
+        <button 
+          className={`tab-button ${activeTab === "academy" ? "active" : ""}`} 
+          onClick={() => setActiveTab("academy")}
+        >
+          Academy
+        </button>
+      </div>
+  
       <button onClick={() => setShowLogic(!showLogic)} className="button">
         {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
       </button>
-
+  
       {showLogic && (
         <div className="expandable-section">
           <h2>📋 Successor Status Logic:</h2>
@@ -122,14 +140,14 @@ const App = () => {
           </ul>
         </div>
       )}
-
+  
       {loading ? (
-        <p>Loading players...</p>
-      ) : (
+        <p>Loading {activeTab === "players" ? "players" : "academy players"}...</p>
+      ) : activeTab === "players" ? (
         allPositions.map((position) => (
           <div key={position} className="expandable-section">
             <h2>{position}</h2>
-
+  
             <table className="table">
               <thead>
                 <tr>
@@ -150,7 +168,7 @@ const App = () => {
                 ))}
               </tbody>
             </table>
-
+  
             <div className="player-card-grid">
               {groupedPlayers[position]?.map((player) => (
                 <PlayerCard
@@ -163,9 +181,15 @@ const App = () => {
             </div>
           </div>
         ))
+      ) : (
+        <div className="expandable-section">
+          <h2>Academy Players</h2>
+          <p>Feature coming soon...</p>
+        </div>
       )}
     </div>
   );
+  
 };
 
 export default App;

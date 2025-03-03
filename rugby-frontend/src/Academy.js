@@ -26,26 +26,21 @@ const Academy = () => {
   };
 
   const handleCalculate = () => {
+    if (!SKILL_CATEGORIES[selectedPosition]) {
+      console.error("Error: Selected position does not have defined skill categories.");
+      return;
+    }
+  
     const results = calculateFinalLevels(skillLevels, SKILL_CATEGORIES[selectedPosition]);
-    setCalculatedSkills(results);
-    console.log("Calculating skill progression...");
-  };
-  
-    // Ensure we are sending valid data
-    console.log("Skill Levels:", skillLevels);
-    console.log("Selected Position:", selectedPosition);
-    console.log("Skill Categories:", SKILL_CATEGORIES[selectedPosition]);
-  
-    // Run the XP calculation logic
-    const results = calculateFinalLevels(skillLevels, selectedPosition);
   
     console.log("Calculation Results:", results); // Check if results are valid
   
     if (results) {
-      setCalculatedSkills({ ...results }); // Ensure state triggers UI update
+      setCalculatedSkills(results); // Ensure state triggers UI update
     } else {
       console.error("Error: Calculation returned undefined");
     }
+  };
 
   return (
     <div className="academy-container">

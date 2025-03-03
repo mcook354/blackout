@@ -2,60 +2,6 @@ import React, { useState } from "react";
 import { calculateFinalLevels } from "./academyLogic";
 import "./Academy.css";
 
-// 📌 Define skill categories per position
-const SKILL_CATEGORIES = {
-  Prop: {
-    category1: ["Scrum"],
-    category2: ["Maul", "Rucking"],
-    category3: ["Counter-Rucking", "Lineout Jumping", "Tackling"],
-  },
-  Hooker: {
-    category1: ["Lineout Throwing"],
-    category2: ["Scrum", "Rucking"],
-    category3: ["Counter-Rucking", "Maul", "Tackling"],
-  },
-  Lock: {
-    category1: ["Lineout Jumping"],
-    category2: ["Scrum", "Maul"],
-    category3: ["Counter-Rucking", "Rucking", "Tackling"],
-  },
-  Flanker: {
-    category1: ["Counter-Rucking"],
-    category2: ["Rucking", "Tackling"],
-    category3: ["Scrum", "Lineout Jumping", "Maul"],
-  },
-  "Number 8": {
-    category1: ["Rucking"],
-    category2: ["Scrum", "Tackling"],
-    category3: ["Lineout Jumping", "Maul", "Counter-Rucking"],
-  },
-  "Scrum-Half": {
-    category1: ["Passing"],
-    category2: ["Awareness", "Line-Breaking"],
-    category3: ["Catching", "Kicking", "Tackling"],
-  },
-  "Fly-Half": {
-    category1: ["Kicking"],
-    category2: ["Passing", "Awareness"],
-    category3: ["Tackling", "Catching", "Line-Breaking"],
-  },
-  Center: {
-    category1: ["Tackling"],
-    category2: ["Passing", "Line-Breaking"],
-    category3: ["Kicking", "Catching", "Awareness"],
-  },
-  Wing: {
-    category1: ["Line-Breaking"],
-    category2: ["Passing", "Catching"],
-    category3: ["Kicking", "Tackling", "Awareness"],
-  },
-  "Full-Back": {
-    category1: ["Catching"],
-    category2: ["Kicking", "Tackling"],
-    category3: ["Passing", "Line-Breaking", "Awareness"],
-  },
-};
-
 // Define all skills (this is used to generate input fields)
 const ALL_SKILLS = [
   "Scrum", "Maul", "Rucking", "Counter-Rucking", "Lineout Jumping",
@@ -91,7 +37,7 @@ const Academy = () => {
     console.log("Skill Categories:", SKILL_CATEGORIES[selectedPosition]);
   
     // Run the XP calculation logic
-    const results = calculateFinalLevels(skillLevels, SKILL_CATEGORIES[selectedPosition]);
+    const results = calculateFinalLevels(skillLevels, selectedPosition);
   
     console.log("Calculation Results:", results); // Check if results are valid
   

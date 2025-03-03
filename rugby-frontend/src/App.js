@@ -112,14 +112,14 @@ const App = () => {
   
       {/* Tabs for Players and Academy */}
       <div className="tab-container">
-        <button 
-          className={`tab ${activeTab === "players" ? "active" : ""}`} 
+        <button
+          className={`tab ${activeTab === "players" ? "active" : ""}`}
           onClick={() => setActiveTab("players")}
         >
           Players
         </button>
-        <button 
-          className={`tab ${activeTab === "academy" ? "active" : ""}`} 
+        <button
+          className={`tab ${activeTab === "academy" ? "active" : ""}`}
           onClick={() => setActiveTab("academy")}
         >
           Academy
@@ -172,23 +172,23 @@ const App = () => {
           <p>Feature coming soon...</p>
         </div>
       )}
+  
+      {/* Move "Show Logic Explanation" to the bottom */}
+      <button onClick={() => setShowLogic(!showLogic)} className="button">
+        {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
+      </button>
+  
+      {showLogic && (
+        <div className="expandable-section">
+          <h2>📋 Successor Status Logic:</h2>
+          <ul>
+            <li><strong>Ready:</strong> Level 78+ (can immediately start)</li>
+            <li><strong>Almost Ready:</strong> Level 70–77 (ready next season)</li>
+            <li><strong>In Development:</strong> Level below 70 (future potential)</li>
+          </ul>
+        </div>
+      )}
     </div>
-    )}
-
-    {/* Move "Show Logic Explanation" to the bottom */}
-    <button onClick={() => setShowLogic(!showLogic)} className="button">
-      {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
-    </button>
-
-    {showLogic && (
-      <div className="expandable-section">
-        <h2>📋 Successor Status Logic:</h2>
-        <ul>
-          <li><strong>Ready:</strong> Level 78+ (can immediately start)</li>
-          <li><strong>Almost Ready:</strong> Level 70–77 (ready next season)</li>
-          <li><strong>In Development:</strong> Level below 70 (future potential)</li>
-        </ul>
-      </div>
-    )} 
-
-export default App;
+  );
+  
+  export default App;

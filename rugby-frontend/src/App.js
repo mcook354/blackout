@@ -93,6 +93,11 @@ const App = () => {
     groupedPlayers[position].sort((a, b) => b.bestLevel - a.bestLevel);
   });
 
+  const getClubName = (clubId) => {
+    const selectedClub = clubOptions.find(club => club.id === clubId);
+    return selectedClub ? selectedClub.name : "Unknown Club";
+  };
+
   return (
     <div className="app-container">
       <div className="header-container">
@@ -107,7 +112,7 @@ const App = () => {
           </select>
         </div>
   
-        <h1>🏉 Blackout Rugby Manager</h1>
+        <h1>🏉 {getClubName(clubId)} </h1>
       </div>
   
       {/* Tabs for Players and Academy */}

@@ -111,15 +111,15 @@ const App = () => {
       </div>
   
       {/* Tabs for Players and Academy */}
-      <div className="tabs">
+      <div className="tab-container">
         <button 
-          className={`tab-button ${activeTab === "players" ? "active" : ""}`} 
+          className={`tab ${activeTab === "players" ? "active" : ""}`} 
           onClick={() => setActiveTab("players")}
         >
           Players
         </button>
         <button 
-          className={`tab-button ${activeTab === "academy" ? "active" : ""}`} 
+          className={`tab ${activeTab === "academy" ? "active" : ""}`} 
           onClick={() => setActiveTab("academy")}
         >
           Academy

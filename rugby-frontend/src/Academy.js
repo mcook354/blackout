@@ -26,21 +26,22 @@ const Academy = () => {
   };
 
   const handleCalculate = () => {
-    if (!SKILL_CATEGORIES[selectedPosition]) {
-      console.error("Error: Selected position does not have defined skill categories.");
+    const positionKey = selectedPosition.trim(); // Remove extra spaces
+    if (!SKILL_CATEGORIES[positionKey]) {
+      console.error("Error: Selected position not found in SKILL_CATEGORIES", positionKey);
       return;
     }
   
-    const results = calculateFinalLevels(skillLevels, SKILL_CATEGORIES[selectedPosition]);
+    const results = calculateFinalLevels(skillLevels, SKILL_CATEGORIES[positionKey]);
   
-    console.log("Calculation Results:", results); // Check if results are valid
+    console.log("Calculation Results:", results);
   
     if (results) {
-      setCalculatedSkills(results); // Ensure state triggers UI update
+      setCalculatedSkills(results);
     } else {
       console.error("Error: Calculation returned undefined");
     }
-  };
+  };  
 
   return (
     <div className="academy-container">

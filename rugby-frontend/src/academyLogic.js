@@ -40,7 +40,7 @@ export const XP_THRESHOLDS = [
   ];
 
   // 📌 Define skill categories per position
-  const SKILL_CATEGORIES = {
+  export const SKILL_CATEGORIES = {
     Prop: {
       category1: ["Scrum"],
       category2: ["Maul", "Rucking"],
@@ -149,5 +149,3 @@ export const XP_THRESHOLDS = [
   
     return updatedSkills;
   };
-
-  export { SKILL_CATEGORIES };  

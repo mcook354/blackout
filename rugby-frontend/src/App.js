@@ -172,9 +172,8 @@ const App = () => {
           </div>
         ))
       ) : (
-        <div className="expandable-section">
-          <h2>Academy Players</h2>
-          <p>Feature coming soon...</p>
+        <div className="academy-container">
+          <Academy />
         </div>
       )}
       <button onClick={() => setShowLogic(!showLogic)} className="button">

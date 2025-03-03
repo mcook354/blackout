@@ -21,7 +21,7 @@ const SKILL_CATEGORIES = {
   },
   Flanker: {
     category1: ["Counter-Rucking"],
-    category2: ["Ruck", "Tackling"],
+    category2: ["Rucking", "Tackling"],
     category3: ["Scrum", "Lineout Jumping", "Maul"],
   },
   "Number 8": {
@@ -59,7 +59,7 @@ const SKILL_CATEGORIES = {
 // Define all skills (this is used to generate input fields)
 const ALL_SKILLS = [
   "Scrum", "Maul", "Rucking", "Counter-Rucking", "Lineout Jumping",
-  "Lineout Throwing", "Ruck", "Tackling", "Passing", "Awareness",
+  "Lineout Throwing", "Tackling", "Passing", "Awareness",
   "Line-Breaking", "Kicking", "Catching"
 ];
 
@@ -82,7 +82,24 @@ const Academy = () => {
   const handleCalculate = () => {
     const results = calculateFinalLevels(skillLevels, SKILL_CATEGORIES[selectedPosition]);
     setCalculatedSkills(results);
+    console.log("Calculating skill progression...");
   };
+  
+    // Ensure we are sending valid data
+    console.log("Skill Levels:", skillLevels);
+    console.log("Selected Position:", selectedPosition);
+    console.log("Skill Categories:", SKILL_CATEGORIES[selectedPosition]);
+  
+    // Run the XP calculation logic
+    const results = calculateFinalLevels(skillLevels, SKILL_CATEGORIES[selectedPosition]);
+  
+    console.log("Calculation Results:", results); // Check if results are valid
+  
+    if (results) {
+      setCalculatedSkills({ ...results }); // Ensure state triggers UI update
+    } else {
+      console.error("Error: Calculation returned undefined");
+    }
 
   return (
     <div className="academy-container">

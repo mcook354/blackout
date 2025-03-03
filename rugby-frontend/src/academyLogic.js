@@ -149,4 +149,5 @@ export const XP_THRESHOLDS = [
   
     return updatedSkills;
   };
-  
+
+  export { SKILL_CATEGORIES };  

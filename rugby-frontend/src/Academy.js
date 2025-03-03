@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { calculateFinalLevels } from "./academyLogic";
+import { calculateFinalLevels, SKILL_CATEGORIES } from "./academyLogic";
 import "./Academy.css";
 
 // Define all skills (this is used to generate input fields)

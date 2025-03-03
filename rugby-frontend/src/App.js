@@ -126,21 +126,6 @@ const App = () => {
         </button>
       </div>
   
-      <button onClick={() => setShowLogic(!showLogic)} className="button">
-        {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
-      </button>
-  
-      {showLogic && (
-        <div className="expandable-section">
-          <h2>📋 Successor Status Logic:</h2>
-          <ul>
-            <li><strong>Ready:</strong> Level 78+ (can immediately start)</li>
-            <li><strong>Almost Ready:</strong> Level 70–77 (ready next season)</li>
-            <li><strong>In Development:</strong> Level below 70 (future potential)</li>
-          </ul>
-        </div>
-      )}
-  
       {loading ? (
         <p>Loading {activeTab === "players" ? "players" : "academy players"}...</p>
       ) : activeTab === "players" ? (
@@ -188,8 +173,22 @@ const App = () => {
         </div>
       )}
     </div>
-  );
-  
-};
+    )}
+
+    {/* Move "Show Logic Explanation" to the bottom */}
+    <button onClick={() => setShowLogic(!showLogic)} className="button">
+      {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
+    </button>
+
+    {showLogic && (
+      <div className="expandable-section">
+        <h2>📋 Successor Status Logic:</h2>
+        <ul>
+          <li><strong>Ready:</strong> Level 78+ (can immediately start)</li>
+          <li><strong>Almost Ready:</strong> Level 70–77 (ready next season)</li>
+          <li><strong>In Development:</strong> Level below 70 (future potential)</li>
+        </ul>
+      </div>
+    )} 
 
 export default App;

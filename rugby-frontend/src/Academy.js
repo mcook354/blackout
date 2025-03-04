@@ -26,22 +26,13 @@ const Academy = () => {
   };
 
   const handleCalculate = () => {
-    const positionKey = selectedPosition.trim(); // Remove extra spaces
+    const positionKey = selectedPosition.trim(); // Remove spaces
     if (!SKILL_CATEGORIES[positionKey]) {
-      console.error("Error: Selected position not found in SKILL_CATEGORIES", positionKey);
+      console.error("Error: Invalid position selected", positionKey);
       return;
     }
-  
-    const results = calculateFinalLevels(skillLevels, SKILL_CATEGORIES[positionKey]);
-  
-    console.log("Calculation Results:", results);
-  
-    if (results) {
-      setCalculatedSkills(results);
-    } else {
-      console.error("Error: Calculation returned undefined");
-    }
-  };  
+    setCalculatedSkills(calculateFinalLevels(skillLevels, SKILL_CATEGORIES[positionKey]));
+  };    
 
   return (
     <div className="academy-container">

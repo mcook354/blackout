@@ -79,13 +79,24 @@ const Academy = () => {
               </tr>
             </thead>
             <tbody>
-              {ALL_SKILLS.map((skill) => (
+            {ALL_SKILLS.map((skill) => {
+                const finalLevel = calculatedSkills[skill];
+
+                let levelClass = "level-low";
+                if (finalLevel >= 35) {
+                levelClass = "level-high";
+                } else if (finalLevel >= 25) {
+                levelClass = "level-medium";
+                }
+
+                return (
                 <tr key={skill}>
-                  <td>{skill}</td>
-                  <td>{skillLevels[skill]}</td>
-                  <td>{calculatedSkills[skill]}</td>
+                    <td>{skill}</td>
+                    <td>{skillLevels[skill]}</td>
+                    <td className={levelClass}>{finalLevel}</td>
                 </tr>
-              ))}
+                );
+            })}
             </tbody>
           </table>
         </div>

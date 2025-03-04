@@ -141,9 +141,10 @@ const getSkillLabel = (skill) => {
   return (
     
     <div className="academy-container">
+        <h1>{getClubName(clubId)} Academy</h1>
     {players && players.length > 0 && (
     <div className="scouting-priorities">
-        <h3>🔎 High-Priority Positions for Scouting</h3>
+        <h2>🔎 High-Priority Positions for Scouting</h2>
         <ul>
         {getScoutingPriorities(players).map((entry, index) => ( // ✅ Players now passed as an argument
             <li key={index}>

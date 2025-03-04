@@ -145,34 +145,29 @@ export const XP_THRESHOLDS = [
         let currentXP = levelToXP(updatedSkills[skill]);
         currentXP += xpGain; // Apply XP gain
         updatedSkills[skill] = xpToLevel(currentXP); // Convert back to level
-      });
-  
-      // Apply 14 random +50 XP boosts
-      // Track XP gains per skill per day
-        let randomXPDistribution = {}; 
+
+        // ✅ Apply 14 random +50 XP boosts each day
+        let randomXPDistribution = {};
 
         for (let i = 0; i < 14; i++) {
-        const randomSkill = Object.keys(updatedSkills)[Math.floor(Math.random() * Object.keys(updatedSkills).length)];
+            const randomSkill = Object.keys(updatedSkills)[Math.floor(Math.random() * Object.keys(updatedSkills).length)];
 
-        if (!randomXPDistribution[randomSkill]) {
+            if (!randomXPDistribution[randomSkill]) {
             randomXPDistribution[randomSkill] = 0;
-        }
-        randomXPDistribution[randomSkill] += 50;
+            }
+            randomXPDistribution[randomSkill] += 50;
         }
 
-        // Apply all random XP boosts
+        // ✅ Apply accumulated XP boosts for this day
         Object.keys(randomXPDistribution).forEach(skill => {
-        let currentXP = levelToXP(updatedSkills[skill]);
-        currentXP += randomXPDistribution[skill]; // Apply all XP boosts at once
-        updatedSkills[skill] = xpToLevel(currentXP);
+            let currentXP = levelToXP(updatedSkills[skill]);
+            currentXP += randomXPDistribution[skill]; // Apply all XP boosts at once
+            updatedSkills[skill] = xpToLevel(currentXP);
         });
 
-      for (let i = 0; i < 14; i++) {
-        const randomSkill = Object.keys(updatedSkills)[Math.floor(Math.random() * Object.keys(updatedSkills).length)];
-        let currentXP = levelToXP(updatedSkills[randomSkill]);
-        currentXP += 50;
-        updatedSkills[randomSkill] = xpToLevel(currentXP);
-      }
+        console.log(`Day ${day + 1} XP Applied:`, updatedSkills);
+
+      });
     }
   
     return updatedSkills;

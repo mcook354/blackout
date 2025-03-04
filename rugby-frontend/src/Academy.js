@@ -51,13 +51,16 @@ const Academy = () => {
         {ALL_SKILLS.map((skill) => (
           <div key={skill} className="form-group">
             <label>{skill}:</label>
-            <input
-              type="number"
-              value={skillLevels[skill]}
-              onChange={(e) => handleSkillChange(skill, e.target.value)}
-              min="9"
-              max="45"
-            />
+            <select
+            value={skillLevels[skill]}
+            onChange={(e) => handleSkillChange(skill, e.target.value)}
+            >
+            {Array.from({ length: 37 }, (_, i) => i + 9).map((level) => (
+                <option key={level} value={level}>
+                {level}
+                </option>
+            ))}
+            </select>
           </div>
         ))}
       </div>

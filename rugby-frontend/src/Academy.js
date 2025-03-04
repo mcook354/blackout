@@ -11,6 +11,7 @@ const ALL_SKILLS = [
 
 const Academy = () => {
   const [selectedPosition, setSelectedPosition] = useState("Prop");
+  const [players, setPlayers] = useState([]);
 
   const [skillLevels, setSkillLevels] = useState(
     ALL_SKILLS.reduce((acc, skill) => ({ ...acc, [skill]: 9 }), {})
@@ -100,7 +101,7 @@ const getSkillLabel = (skill) => {
     return "🔴 Needs Development";
   };
 
-  const getScoutingPriorities = () => {
+  const getScoutingPriorities = (players) => {
     if (!players || players.length === 0) return [];
   
     let positionDepth = {};
@@ -125,7 +126,6 @@ const getSkillLabel = (skill) => {
     // Prioritize positions with the fewest "Ready" and "Almost Ready" players
     let sortedPositions = Object.entries(positionDepth)
       .sort((a, b) => {
-        // Sort first by lowest "Ready" count, then by lowest "Almost Ready" count
         if (a[1].ready !== b[1].ready) return a[1].ready - b[1].ready;
         return a[1].almostReady - b[1].almostReady;
       })
@@ -137,24 +137,24 @@ const getSkillLabel = (skill) => {
       }));
   
     return sortedPositions.slice(0, 3); // Return top 3 positions needing scouting
-  };  
+  };    
 
   return (
     
     <div className="academy-container">
     {players.length > 0 && (
-        <div className="scouting-priorities">
-            <h3>🔎 High-Priority Positions for Scouting</h3>
-            <ul>
-            {getScoutingPriorities().map((entry, index) => (
-                <li key={index}>
-                <strong>{entry.position}</strong>: 
-                {` Ready: ${entry.ready}, Almost Ready: ${entry.almostReady}, In Dev: ${entry.inDevelopment}`}
-                </li>
-            ))}
-            </ul>
-        </div>
-        )}
+    <div className="scouting-priorities">
+        <h3>🔎 High-Priority Positions for Scouting</h3>
+        <ul>
+        {getScoutingPriorities(players).map((entry, index) => ( // ✅ Players now passed as an argument
+            <li key={index}>
+            <strong>{entry.position}</strong>: 
+            {` Ready: ${entry.ready}, Almost Ready: ${entry.almostReady}, In Dev: ${entry.inDevelopment}`}
+            </li>
+        ))}
+        </ul>
+    </div>
+    )}
       <h2>🎓 Academy Skill Progression Calculator</h2>
 
       <div className="form-group">

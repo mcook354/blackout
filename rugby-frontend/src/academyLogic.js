@@ -117,14 +117,14 @@ export const XP_THRESHOLDS = [
     let updatedSkills = { ...initialSkills };
   
     // Get skill categories for the selected position
-    const positionSkills = SKILL_CATEGORIES[selectedPosition] || {}; // Ensure it's at least an empty object
+    const positionSkills = SKILL_CATEGORIES[position] || {}; 
 
     if (!positionSkills.category1 || !positionSkills.category2 || !positionSkills.category3) {
     console.error("Error: Position skills data is missing!", positionSkills);
     return {}; // Prevent breaking the function
     }
 
-    console.log("Selected Position:", selectedPosition);
+    console.log("Position:", position);
     console.log("Position Skills:", positionSkills);
     console.log("Skill Categories Data:", SKILL_CATEGORIES);
   

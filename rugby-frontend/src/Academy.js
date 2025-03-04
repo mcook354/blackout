@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { calculateFinalLevels, SKILL_CATEGORIES } from "./academyLogic";
 import "./Academy.css";
 

@@ -100,7 +100,7 @@ export const XP_THRESHOLDS = [
   };
   
   // Convert XP back to skill level
-  const xpToLevel = (xp) => {
+  export const xpToLevel = (xp) => {
     let level = 9;
     for (let i = 0; i < XP_THRESHOLDS.length; i++) {
       if (xp >= XP_THRESHOLDS[i].xp) {

@@ -9,10 +9,9 @@ const ALL_SKILLS = [
   "Line-Breaking", "Kicking", "Catching"
 ];
 
-const Academy = () => {
+const Academy = ({ players }) => {
   const [selectedPosition, setSelectedPosition] = useState("Prop");
-  const [players, setPlayers] = useState([]);
-
+  
   const [skillLevels, setSkillLevels] = useState(
     ALL_SKILLS.reduce((acc, skill) => ({ ...acc, [skill]: 9 }), {})
   );
@@ -142,7 +141,7 @@ const getSkillLabel = (skill) => {
   return (
     
     <div className="academy-container">
-    {players.length > 0 && (
+    {players && players.length > 0 && (
     <div className="scouting-priorities">
         <h3>🔎 High-Priority Positions for Scouting</h3>
         <ul>

@@ -76,11 +76,13 @@ const Academy = () => {
                 <th>Skill</th>
                 <th>Starting Level</th>
                 <th>Final Level</th>
+                <th>Soft Cap</th>
               </tr>
             </thead>
             <tbody>
             {ALL_SKILLS.map((skill) => {
                 const finalLevel = calculatedSkills[skill];
+                const softCap = finalLevel + 40; // Soft Cap Calculation
 
                 let levelClass = "level-low";
                 if (finalLevel >= 35) {
@@ -96,6 +98,7 @@ const Academy = () => {
                     <td>{skill}</td>
                     <td>{skillLevels[skill]}</td>
                     <td className={levelClass}>{finalLevel}</td>
+                    <td className="soft-cap">{softCap}</td>
                 </tr>
                 );
             })}

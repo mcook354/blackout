@@ -167,3 +167,10 @@
     font-weight: bold;
   }
   
+  /* 📊 Soft Cap Column */
+.soft-cap {
+    font-weight: bold;
+    color: #ffcc00; /* Yellow to highlight */
+  }
+  
+  

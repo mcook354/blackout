@@ -158,7 +158,12 @@
   }
   
   .level-high {
-    color: #66ff66; /* Green for top-tier skills */
+    color: #178317; /* Dark green for top-tier skills */
+    font-weight: bold;
+  }
+
+  .level-veryhigh {
+    color: #66ff66; /* Bright green for insane skills */
     font-weight: bold;
   }
   

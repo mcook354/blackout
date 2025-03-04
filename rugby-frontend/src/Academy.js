@@ -84,8 +84,10 @@ const Academy = () => {
 
                 let levelClass = "level-low";
                 if (finalLevel >= 35) {
+                levelClass = "level-veryhigh";
+                } else if (finalLevel >= 30) {
                 levelClass = "level-high";
-                } else if (finalLevel >= 25) {
+                } else if (finalLevel >= 20) {
                 levelClass = "level-medium";
                 }
 

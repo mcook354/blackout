@@ -173,46 +173,28 @@
     color: #ffffff; /* Yellow to highlight */
   }
   
-  /* ⭐ Player Rating Display */
-.rating-container {
+/* 🏆 Top 3 Positions */
+.top-positions-container {
     text-align: center;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 20px;
-    padding: 10px;
     background-color: #222;
+    padding: 10px;
     border-radius: 6px;
+    margin-top: 20px;
   }
   
-  .rating-label {
-    font-size: 20px;
-    padding: 5px 10px;
-    border-radius: 4px;
+  .top-positions-container h3 {
+    color: #ffcc00;
+    margin-bottom: 10px;
   }
   
-  /* 🌟 Elite - Gold */
-  .rating-label:contains("Elite Prospect") {
-    color: #ffd700;
+  .top-positions-container ul {
+    list-style: none;
+    padding: 0;
   }
   
-  /* 🔥 Great Potential - Orange */
-  .rating-label:contains("Great Potential") {
-    color: #ff7f00;
-  }
-  
-  /* ✅ Solid Player - Green */
-  .rating-label:contains("Solid Player") {
-    color: #4caf50;
-  }
-  
-  /* ⚖️ Average Talent - Blue */
-  .rating-label:contains("Average Talent") {
-    color: #2196f3;
-  }
-  
-  /* 🔴 Needs Development - Red */
-  .rating-label:contains("Needs Development") {
-    color: #ff4c4c;
+  .top-positions-container li {
+    font-size: 16px;
+    margin: 5px 0;
   }
   
   

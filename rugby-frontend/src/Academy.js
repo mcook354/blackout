@@ -51,14 +51,6 @@ const getPlayerRating = () => {
     const avgFinalLevel = allRelevantSkills.length > 0
       ? allRelevantSkills.reduce((sum, level) => sum + level, 0) / allRelevantSkills.length
       : 0;
-  
-    // Determine rating based on average level
-    if (avgFinalLevel >= 35) return "🌟 Elite Prospect";
-    if (avgFinalLevel >= 30) return "🔥 Great Potential";
-    if (avgFinalLevel >= 25) return "✅ Solid Player";
-    if (avgFinalLevel >= 20) return "⚖️ Average Talent";
-    return "🔴 Needs Development";
-  };
 
   const getSkillLabel = (skill) => {
     if (!selectedPosition || !SKILL_CATEGORIES[selectedPosition]) return skill;
@@ -71,6 +63,42 @@ const getPlayerRating = () => {
   
     return `${skill} (other)`; // Skills not in cat 1, 2, or 3
   };  
+
+  const getTopPositions = () => {
+    if (!calculatedSkills) return [];
+  
+    let positionRankings = [];
+  
+    // Loop through all positions and calculate the average Cat 1 & 2 skill levels
+    Object.keys(SKILL_CATEGORIES).forEach(position => {
+      const positionSkills = SKILL_CATEGORIES[position];
+  
+      const cat1 = positionSkills.category1.map(skill => calculatedSkills[skill] || 0);
+      const cat2 = positionSkills.category2.map(skill => calculatedSkills[skill] || 0);
+      const allSkills = [...cat1, ...cat2];
+  
+      if (allSkills.length > 0) {
+        const avg = allSkills.reduce((sum, lvl) => sum + lvl, 0) / allSkills.length;
+        const rating = getPlayerRatingForPosition(avg); // Get rating for this position
+        positionRankings.push({ position, avg, rating });
+      }
+    });
+  
+    // Sort positions by highest average skill level
+    positionRankings.sort((a, b) => b.avg - a.avg);
+  
+    // Return the top 3 positions
+    return positionRankings.slice(0, 3);
+  };
+
+  const getPlayerRatingForPosition = (avgFinalLevel) => {
+    if (avgFinalLevel >= 40) return "🌟 Elite Prospect";
+    if (avgFinalLevel >= 35) return "🔥 Great Potential";
+    if (avgFinalLevel >= 30) return "✅ Solid Player";
+    if (avgFinalLevel >= 25) return "⚖️ Average Talent";
+    return "🔴 Needs Development";
+  };
+}  
 
   return (
     <div className="academy-container">
@@ -109,8 +137,15 @@ const getPlayerRating = () => {
         <div className="results-container">
           <h3>📊 Projected Skill Levels After 13 Days</h3>
           {calculatedSkills && (
-            <div className="rating-container">
-                <h3>Player Rating: <span className="rating-label">{getPlayerRating()}</span></h3>
+            <div className="top-positions-container">
+                <h3>🏆 Top 3 Positions Based on Projected Skills</h3>
+                <ul>
+                {getTopPositions().map((entry, index) => (
+                    <li key={index}>
+                    <strong>{entry.position}</strong>: {entry.rating} ({entry.avg.toFixed(1)})
+                    </li>
+                ))}
+                </ul>
             </div>
             )}
           <table className="results-table">

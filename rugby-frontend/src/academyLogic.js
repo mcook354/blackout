@@ -148,6 +148,25 @@ export const XP_THRESHOLDS = [
       });
   
       // Apply 14 random +50 XP boosts
+      // Track XP gains per skill per day
+        let randomXPDistribution = {}; 
+
+        for (let i = 0; i < 14; i++) {
+        const randomSkill = Object.keys(updatedSkills)[Math.floor(Math.random() * Object.keys(updatedSkills).length)];
+
+        if (!randomXPDistribution[randomSkill]) {
+            randomXPDistribution[randomSkill] = 0;
+        }
+        randomXPDistribution[randomSkill] += 50;
+        }
+
+        // Apply all random XP boosts
+        Object.keys(randomXPDistribution).forEach(skill => {
+        let currentXP = levelToXP(updatedSkills[skill]);
+        currentXP += randomXPDistribution[skill]; // Apply all XP boosts at once
+        updatedSkills[skill] = xpToLevel(currentXP);
+        });
+
       for (let i = 0; i < 14; i++) {
         const randomSkill = Object.keys(updatedSkills)[Math.floor(Math.random() * Object.keys(updatedSkills).length)];
         let currentXP = levelToXP(updatedSkills[randomSkill]);

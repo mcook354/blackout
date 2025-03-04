@@ -14,10 +14,17 @@
 }
 
 /* 🏉 Header */
+.academy-container h1 {
+    text-align: center;
+    color: #ffcc00;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+
 .academy-container h2 {
   text-align: center;
   color: #ffcc00;
-  font-size: 22px;
+  font-size: 20px;
   margin-bottom: 20px;
 }
 
@@ -196,7 +203,7 @@
     font-size: 16px;
     margin: 5px 0;
   }
-  
+
 /* 🔎 Scouting Priorities */
 .scouting-priorities {
     background-color: #222;

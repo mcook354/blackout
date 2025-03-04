@@ -35,7 +35,7 @@ const Academy = () => {
   };
 
   // Function to compute the rating based on the selected position
-const getPlayerRating = () => {
+  const getPlayerRating = () => {
     if (!calculatedSkills) return null; // If no results yet, return nothing
   
     const positionSkills = SKILL_CATEGORIES[selectedPosition];
@@ -51,8 +51,9 @@ const getPlayerRating = () => {
     const avgFinalLevel = allRelevantSkills.length > 0
       ? allRelevantSkills.reduce((sum, level) => sum + level, 0) / allRelevantSkills.length
       : 0;
+};  // ✅ Closing bracket added here
 
-  const getSkillLabel = (skill) => {
+const getSkillLabel = (skill) => {
     if (!selectedPosition || !SKILL_CATEGORIES[selectedPosition]) return skill;
   
     const positionSkills = SKILL_CATEGORIES[selectedPosition];
@@ -62,7 +63,7 @@ const getPlayerRating = () => {
     if (positionSkills.category3.includes(skill)) return `${skill} (cat 3)`;
   
     return `${skill} (other)`; // Skills not in cat 1, 2, or 3
-  };  
+};  
 
   const getTopPositions = () => {
     if (!calculatedSkills) return [];
@@ -98,7 +99,6 @@ const getPlayerRating = () => {
     if (avgFinalLevel >= 25) return "⚖️ Average Talent";
     return "🔴 Needs Development";
   };
-}  
 
   return (
     <div className="academy-container">

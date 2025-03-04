@@ -18,6 +18,44 @@ const Academy = ({ players, clubId, getClubName }) => {
 
   const [calculatedSkills, setCalculatedSkills] = useState(null);
 
+  useEffect(() => {
+    if (!clubId) return;
+
+    const fetchProspect = async () => {
+        try {
+            const response = await fetch(`https://api.blackoutrugby.com/v1/academy/${clubId}`);
+            const data = await response.json();
+
+            if (!data || !data.data || !data.data.attributes || !data.data.attributes.newProspect) {
+                console.error("Invalid prospect data:", data);
+                return;
+            }
+
+            const prospect = data.data.attributes.newProspect.player;
+            if (!prospect || !prospect.skills) {
+                console.error("Prospect data missing skills:", prospect);
+                return;
+            }
+
+            const skillXPData = prospect.skills; // Extract skills XP
+
+            // Convert XP to Levels
+            const convertedSkills = Object.keys(skillXPData).reduce((acc, skill) => {
+                acc[skill] = xpToLevel(skillXPData[skill]); // Convert XP to Level
+                return acc;
+            }, {});
+
+            // Update state with converted skill levels
+            setSkillLevels((prev) => ({ ...prev, ...convertedSkills }));
+
+        } catch (error) {
+            console.error("Error fetching academy prospect:", error);
+        }
+    };
+
+    fetchProspect();
+}, [clubId]); // Runs when `clubId` changes
+
   const handleSkillChange = (skill, value) => {
     setSkillLevels((prev) => ({
       ...prev,
@@ -160,29 +198,29 @@ const getSkillLabel = (skill) => {
       <div className="form-group">
         <label>Select Position:</label>
         <select value={selectedPosition} onChange={(e) => setSelectedPosition(e.target.value)}>
-          {Object.keys(SKILL_CATEGORIES).map((position) => (
+            {Object.keys(SKILL_CATEGORIES).map((position) => (
             <option key={position} value={position}>{position}</option>
-          ))}
+            ))}
         </select>
-      </div>
+        </div>
 
-      <div className="skill-inputs">
+        <div className="skill-inputs">
         {ALL_SKILLS.map((skill) => (
-          <div key={skill} className="form-group">
+            <div key={skill} className="form-group">
             <label>{skill}:</label>
             <select
-            value={skillLevels[skill]}
-            onChange={(e) => handleSkillChange(skill, e.target.value)}
+                value={skillLevels[skill]}
+                onChange={(e) => handleSkillChange(skill, e.target.value)}
             >
-            {Array.from({ length: 37 }, (_, i) => i + 9).map((level) => (
+                {Array.from({ length: 37 }, (_, i) => i + 9).map((level) => (
                 <option key={level} value={level}>
-                {level}
+                    {level}
                 </option>
-            ))}
+                ))}
             </select>
-          </div>
+            </div>
         ))}
-      </div>
+        </div>
 
       <button className="calculate-button" onClick={handleCalculate}>Calculate</button>
 

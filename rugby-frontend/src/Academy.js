@@ -60,6 +60,18 @@ const getPlayerRating = () => {
     return "🔴 Needs Development";
   };
 
+  const getSkillLabel = (skill) => {
+    if (!selectedPosition || !SKILL_CATEGORIES[selectedPosition]) return skill;
+  
+    const positionSkills = SKILL_CATEGORIES[selectedPosition];
+  
+    if (positionSkills.category1.includes(skill)) return `${skill} (cat 1)`;
+    if (positionSkills.category2.includes(skill)) return `${skill} (cat 2)`;
+    if (positionSkills.category3.includes(skill)) return `${skill} (cat 3)`;
+  
+    return `${skill} (other)`; // Skills not in cat 1, 2, or 3
+  };  
+
   return (
     <div className="academy-container">
       <h2>🎓 Academy Skill Progression Calculator</h2>
@@ -126,7 +138,7 @@ const getPlayerRating = () => {
 
                 return (
                 <tr key={skill}>
-                    <td>{skill}</td>
+                    <td>{getSkillLabel(skill)}</td>
                     <td>{skillLevels[skill]}</td>
                     <td className={levelClass}>{finalLevel}</td>
                     <td className="soft-cap">{softCap}</td>

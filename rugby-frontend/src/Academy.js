@@ -100,8 +100,61 @@ const getSkillLabel = (skill) => {
     return "🔴 Needs Development";
   };
 
+  const getScoutingPriorities = () => {
+    if (!players || players.length === 0) return [];
+  
+    let positionDepth = {};
+  
+    // Count players at each position by successor status
+    players.forEach((player) => {
+      const position = player.bestPosition; // Uses overridden position if changed
+  
+      if (!positionDepth[position]) {
+        positionDepth[position] = { ready: 0, almostReady: 0, inDevelopment: 0 };
+      }
+  
+      if (player.successorStatus === "Ready") {
+        positionDepth[position].ready += 1;
+      } else if (player.successorStatus === "Almost Ready") {
+        positionDepth[position].almostReady += 1;
+      } else {
+        positionDepth[position].inDevelopment += 1;
+      }
+    });
+  
+    // Prioritize positions with the fewest "Ready" and "Almost Ready" players
+    let sortedPositions = Object.entries(positionDepth)
+      .sort((a, b) => {
+        // Sort first by lowest "Ready" count, then by lowest "Almost Ready" count
+        if (a[1].ready !== b[1].ready) return a[1].ready - b[1].ready;
+        return a[1].almostReady - b[1].almostReady;
+      })
+      .map(([position, counts]) => ({
+        position,
+        ready: counts.ready,
+        almostReady: counts.almostReady,
+        inDevelopment: counts.inDevelopment
+      }));
+  
+    return sortedPositions.slice(0, 3); // Return top 3 positions needing scouting
+  };  
+
   return (
+    
     <div className="academy-container">
+    {players.length > 0 && (
+        <div className="scouting-priorities">
+            <h3>🔎 High-Priority Positions for Scouting</h3>
+            <ul>
+            {getScoutingPriorities().map((entry, index) => (
+                <li key={index}>
+                <strong>{entry.position}</strong>: 
+                {` Ready: ${entry.ready}, Almost Ready: ${entry.almostReady}, In Dev: ${entry.inDevelopment}`}
+                </li>
+            ))}
+            </ul>
+        </div>
+        )}
       <h2>🎓 Academy Skill Progression Calculator</h2>
 
       <div className="form-group">

@@ -197,4 +197,28 @@
     margin: 5px 0;
   }
   
+/* 🔎 Scouting Priorities */
+.scouting-priorities {
+    background-color: #222;
+    padding: 15px;
+    border-radius: 6px;
+    margin: 20px 0;
+    text-align: center;
+  }
+  
+  .scouting-priorities h3 {
+    color: #ffcc00;
+    margin-bottom: 10px;
+  }
+  
+  .scouting-priorities ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .scouting-priorities li {
+    font-size: 16px;
+    margin: 5px 0;
+  }
+    
   

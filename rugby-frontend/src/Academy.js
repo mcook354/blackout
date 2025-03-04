@@ -19,42 +19,50 @@ const Academy = ({ players, clubId, getClubName }) => {
   const [calculatedSkills, setCalculatedSkills] = useState(null);
 
   useEffect(() => {
-    if (!clubId) return;
-
-    const fetchProspect = async () => {
-        try {
-            const response = await fetch(`https://api.blackoutrugby.com/v1/academy/${clubId}`);
-            const data = await response.json();
-
-            if (!data || !data.data || !data.data.attributes || !data.data.attributes.newProspect) {
-                console.error("Invalid prospect data:", data);
-                return;
-            }
-
-            const prospect = data.data.attributes.newProspect.player;
-            if (!prospect || !prospect.skills) {
-                console.error("Prospect data missing skills:", prospect);
-                return;
-            }
-
-            const skillXPData = prospect.skills; // Extract skills XP
-
-            // Convert XP to Levels
-            const convertedSkills = Object.keys(skillXPData).reduce((acc, skill) => {
-                acc[skill] = xpToLevel(skillXPData[skill]); // Convert XP to Level
-                return acc;
-            }, {});
-
-            // Update state with converted skill levels
-            setSkillLevels((prev) => ({ ...prev, ...convertedSkills }));
-
-        } catch (error) {
-            console.error("Error fetching academy prospect:", error);
+    const fetchProspectData = async () => {
+      try {
+        const response = await fetch(`https://api.blackoutrugby.com/v1/academy/${clubId}`, {
+          headers: {
+            "Authorization": `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4`, // ✅ Provide API Key
+            "Content-Type": "application/json",
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.statusText}`);
         }
+  
+        const data = await response.json();
+        console.log("API Response:", data); // Debugging log
+  
+        // Check if newProspect exists
+        if (!data.data.attributes || !data.data.attributes.newProspect) {
+          console.error("No new prospect data available.");
+          return;
+        }
+  
+        const skillsXP = data.data.attributes.newProspect.player.skills;
+        
+        if (!skillsXP) {
+          console.error("Invalid skill data format:", data);
+          return;
+        }
+  
+        // Convert XP to Levels using xpToLevel function
+        const convertedSkills = Object.fromEntries(
+          Object.entries(skillsXP).map(([skill, xp]) => [skill, xpToLevel(xp)])
+        );
+  
+        setSkillLevels(convertedSkills);
+      } catch (error) {
+        console.error("Error fetching academy prospect data:", error);
+      }
     };
-
-    fetchProspect();
-}, [clubId]); // Runs when `clubId` changes
+  
+    if (clubId) {
+      fetchProspectData();
+    }
+  }, [clubId]);  
 
   const handleSkillChange = (skill, value) => {
     setSkillLevels((prev) => ({

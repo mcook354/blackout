@@ -31,7 +31,7 @@ const Academy = () => {
       console.error("Error: Invalid position selected", positionKey);
       return;
     }
-    setCalculatedSkills(calculateFinalLevels(skillLevels, SKILL_CATEGORIES[positionKey]));
+    setCalculatedSkills(calculateFinalLevels(skillLevels, selectedPosition));
   };    
 
   return (

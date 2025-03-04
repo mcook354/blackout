@@ -9,7 +9,7 @@ const ALL_SKILLS = [
   "Line-Breaking", "Kicking", "Catching"
 ];
 
-const Academy = ({ players }) => {
+const Academy = ({ players, clubId, getClubName }) => {
   const [selectedPosition, setSelectedPosition] = useState("Prop");
   
   const [skillLevels, setSkillLevels] = useState(

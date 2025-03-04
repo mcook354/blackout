@@ -173,7 +173,11 @@ const App = () => {
         ))
       ) : (
         <div className="academy-container">
-          <Academy players={players} />
+          <Academy 
+            players={players} 
+            clubId={clubId} 
+            getClubName={getClubName} 
+          />
         </div>
       )}
       <button onClick={() => setShowLogic(!showLogic)} className="button">

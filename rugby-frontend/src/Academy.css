@@ -158,7 +158,7 @@
   }
   
   .level-high {
-    color: #178317; /* Dark green for top-tier skills */
+    color: #fce300; /* Dark green for top-tier skills */
     font-weight: bold;
   }
 
@@ -166,11 +166,11 @@
     color: #66ff66; /* Bright green for insane skills */
     font-weight: bold;
   }
-  
+
   /* 📊 Soft Cap Column */
 .soft-cap {
     font-weight: bold;
-    color: #ffcc00; /* Yellow to highlight */
+    color: #ffffff; /* Yellow to highlight */
   }
   
   

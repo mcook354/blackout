@@ -32,7 +32,33 @@ const Academy = () => {
       return;
     }
     setCalculatedSkills(calculateFinalLevels(skillLevels, selectedPosition));
-  };    
+  };
+
+  // Function to compute the rating based on the selected position
+const getPlayerRating = () => {
+    if (!calculatedSkills) return null; // If no results yet, return nothing
+  
+    const positionSkills = SKILL_CATEGORIES[selectedPosition];
+  
+    if (!positionSkills) return "No data available for this position.";
+  
+    // Get final levels of Category 1 & 2 skills
+    const cat1Skills = positionSkills.category1.map(skill => calculatedSkills[skill] || 0);
+    const cat2Skills = positionSkills.category2.map(skill => calculatedSkills[skill] || 0);
+    
+    // Compute average
+    const allRelevantSkills = [...cat1Skills, ...cat2Skills];
+    const avgFinalLevel = allRelevantSkills.length > 0
+      ? allRelevantSkills.reduce((sum, level) => sum + level, 0) / allRelevantSkills.length
+      : 0;
+  
+    // Determine rating based on average level
+    if (avgFinalLevel >= 35) return "🌟 Elite Prospect";
+    if (avgFinalLevel >= 30) return "🔥 Great Potential";
+    if (avgFinalLevel >= 25) return "✅ Solid Player";
+    if (avgFinalLevel >= 20) return "⚖️ Average Talent";
+    return "🔴 Needs Development";
+  };
 
   return (
     <div className="academy-container">
@@ -70,6 +96,11 @@ const Academy = () => {
       {calculatedSkills && (
         <div className="results-container">
           <h3>📊 Projected Skill Levels After 13 Days</h3>
+          {calculatedSkills && (
+            <div className="rating-container">
+                <h3>Player Rating: <span className="rating-label">{getPlayerRating()}</span></h3>
+            </div>
+            )}
           <table className="results-table">
             <thead>
               <tr>

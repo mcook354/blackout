@@ -93,10 +93,10 @@ const getSkillLabel = (skill) => {
   };
 
   const getPlayerRatingForPosition = (avgFinalLevel) => {
-    if (avgFinalLevel >= 40) return "🌟 Elite Prospect";
-    if (avgFinalLevel >= 35) return "🔥 Great Potential";
-    if (avgFinalLevel >= 30) return "✅ Solid Player";
-    if (avgFinalLevel >= 25) return "⚖️ Average Talent";
+    if (avgFinalLevel >= 36) return "🌟 Elite Prospect";
+    if (avgFinalLevel >= 32) return "🔥 Great Potential";
+    if (avgFinalLevel >= 28) return "✅ Solid Player";
+    if (avgFinalLevel >= 20) return "⚖️ Average Talent";
     return "🔴 Needs Development";
   };
 

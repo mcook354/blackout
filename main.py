@@ -175,32 +175,28 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
         return {"data": players_data}
         
 @app.get("/academy/{club_id}")
-async def get_academy_prospect(club_id: str):
+async def get_academy_prospect(club_id: str = Query(..., description="Club GUID to fetch players for")):
     """
     Fetches the current academy prospect for a given club ID from the Blackout Rugby API.
     Converts skill XP to levels before returning.
     """
-    url = f"{BASE_URL}academy/{club_id}"  # ✅ Remove extra slash
-    headers = HEADERS
+    academy_url = f"{BASE_URL}academy/{club_id}"
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
+    async with httpx.AsyncClient(headers=HEADERS) as client:
+        response = await client.get(academy_url)
 
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")
+        return {"error": "Failed to fetch academy prospect data"}
 
-    data = response.json()
+    academy_data = response.json()
 
     try:
-        # ✅ Handle case where no prospect exists
-        prospect_data = data["data"]["attributes"].get("newProspect")
+        prospect_data = academy_data["data"]["attributes"].get("newProspect")
         if not prospect_data:
             raise HTTPException(status_code=404, detail="No active academy prospect found")
 
-        # ✅ Extract skills XP from the correct path in the JSON
         skills_xp = prospect_data["player"]["skills"]
 
-        # ✅ Convert XP to Levels using our conversion function
         converted_skills = {skill: xp_to_level(xp) for skill, xp in skills_xp.items()}
 
         return {"clubId": club_id, "skills": converted_skills}

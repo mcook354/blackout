@@ -25,10 +25,9 @@ def read_root():
 
 # ✅ API Setup
 API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4"
-BASE_URL = "https://api.blackoutrugby.com/v1"
+BASE_URL = "https://api.blackoutrugby.com/v1/"
 HEADERS = {
-    "Authorization": f"Bearer {API_KEY}",
-    "Accept": "application/vnd.api+json"
+    "Authorization": f"Bearer {API_KEY}"
 }
 
 import random

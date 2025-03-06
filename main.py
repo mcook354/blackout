@@ -181,9 +181,13 @@ async def get_academy_prospect(club_id: str):
     Converts skill XP to levels before returning.
     """
     url = f"{BASE_URL}academy/{club_id}"  # ✅ Ensure correct URL format
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Accept": "application/vnd.api+json",
+    }
 
-    async with httpx.AsyncClient(headers=HEADERS) as client:
-        response = await client.get(url)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers = headers)
 
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")

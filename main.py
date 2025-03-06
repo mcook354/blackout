@@ -175,7 +175,7 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
         return {"data": players_data}
         
 @app.get("/academy/{club_id}")
-async def get_academy_prospect(club_id: str = Query(..., description="Club GUID to fetch players for")):
+async def get_academy_prospect(club_id: str):
     """
     Fetches the current academy prospect for a given club ID from the Blackout Rugby API.
     Converts skill XP to levels before returning.

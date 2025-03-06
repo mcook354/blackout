@@ -1,6 +1,6 @@
 import asyncio
 import httpx
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -171,3 +171,56 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
                 })
 
         return {"data": players_data}
+    
+@app.get("/academy/{club_id}")
+async def get_academy_prospect(club_id: str):
+    """
+    Fetches the current academy prospect for a given club ID from the Blackout Rugby API.
+    Converts skill XP to levels before returning.
+    """
+    url = f"{BASE_URL}/academy/{club_id}"
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")
+
+    data = response.json()
+
+    try:
+        # ✅ Extract skills XP from the correct path in the JSON
+        skills_xp = data["data"]["attributes"]["newProspect"]["player"]["skills"]
+
+        # ✅ Convert XP to Levels using our conversion function
+        converted_skills = {skill: xp_to_level(xp) for skill, xp in skills_xp.items()}
+
+        return {"clubId": club_id, "skills": converted_skills}
+
+    except KeyError:
+        raise HTTPException(status_code=500, detail="Invalid academy prospect data format")
+
+
+def xp_to_level(xp: int) -> int:
+    """ Converts skill XP into a skill level based on predefined XP thresholds. """
+    xp_table = [
+        (980, 9), (1130, 10), (1290, 11), (1462, 12), (1645, 13), (1839, 14),
+        (2043, 15), (2259, 16), (2485, 17), (2722, 18), (2970, 19), (3230, 20),
+        (3500, 21), (3780, 22), (4072, 23), (4375, 24), (4689, 25), (5013, 26),
+        (5349, 27), (5695, 28), (6052, 29), (6420, 30), (6800, 31), (7190, 32),
+        (7590, 33), (8002, 34), (8425, 35), (8859, 36), (9303, 37), (9759, 38),
+        (10225, 39), (10702, 40), (11190, 41), (11690, 42), (12200, 43), (12720, 44),
+        (13252, 45)
+    ]
+
+    level = 9
+    for threshold, lvl in xp_table:
+        if xp >= threshold:
+            level = lvl
+        else:
+            break
+    return level

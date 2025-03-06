@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { calculateFinalLevels, SKILL_CATEGORIES, xpToLevel } from "./academyLogic";
+import { calculateFinalLevels, SKILL_CATEGORIES } from "./academyLogic";
 import "./Academy.css";
+
+const BACKEND_URL = "https://blackout-it05.onrender.com";
 
 // Define all skills (this is used to generate input fields)
 const ALL_SKILLS = [
@@ -10,59 +12,38 @@ const ALL_SKILLS = [
 ];
 
 const Academy = ({ players, clubId, getClubName }) => {
-  const [selectedPosition, setSelectedPosition] = useState("Prop");
+    const [selectedPosition, setSelectedPosition] = useState("Prop");
+    const [skillLevels, setSkillLevels] = useState(
+      ALL_SKILLS.reduce((acc, skill) => ({ ...acc, [skill]: 9 }), {})
+    );
+    const [calculatedSkills, setCalculatedSkills] = useState(null);
   
-  const [skillLevels, setSkillLevels] = useState(
-    ALL_SKILLS.reduce((acc, skill) => ({ ...acc, [skill]: 9 }), {})
-  );
-
-  const [calculatedSkills, setCalculatedSkills] = useState(null);
-
-  useEffect(() => {
-    const fetchProspectData = async () => {
-      try {
-        const response = await fetch(`https://api.blackoutrugby.com/v1/academy/${clubId}`, {
-          headers: {
-            "Token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4",
-            "Accepts": "application/vnd.api+json",
-          },
-        });
+    useEffect(() => {
+      const fetchProspectData = async () => {
+        try {
+          const response = await fetch(`${BACKEND_URL}/academy/${clubId}`);
   
-        if (!response.ok) {
-          throw new Error(`API request failed: ${response.statusText}`);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch academy prospect: ${response.statusText}`);
+          }
+  
+          const data = await response.json();
+          console.log("Academy Prospect Data:", data); // Debugging log
+  
+          if (data.skills) {
+            setSkillLevels(data.skills);
+          } else {
+            console.error("Invalid data format", data);
+          }
+        } catch (error) {
+          console.error("Error fetching academy prospect data:", error);
         }
+      };
   
-        const data = await response.json();
-        console.log("API Response:", data); // Debugging log
-  
-        // Check if newProspect exists
-        if (!data.data.attributes || !data.data.attributes.newProspect) {
-          console.error("No new prospect data available.");
-          return;
-        }
-  
-        const skillsXP = data.data.attributes.newProspect.player.skills;
-        
-        if (!skillsXP) {
-          console.error("Invalid skill data format:", data);
-          return;
-        }
-  
-        // Convert XP to Levels using xpToLevel function
-        const convertedSkills = Object.fromEntries(
-          Object.entries(skillsXP).map(([skill, xp]) => [skill, xpToLevel(xp)])
-        );
-  
-        setSkillLevels(convertedSkills);
-      } catch (error) {
-        console.error("Error fetching academy prospect data:", error);
+      if (clubId) {
+        fetchProspectData();
       }
-    };
-  
-    if (clubId) {
-      fetchProspectData();
-    }
-  }, [clubId]);  
+    }, [clubId]);  
 
   const handleSkillChange = (skill, value) => {
     setSkillLevels((prev) => ({
@@ -188,6 +169,7 @@ const getSkillLabel = (skill) => {
     
     <div className="academy-container">
         <h1>👶 {getClubName(clubId)} Academy</h1>
+        <pre>{JSON.stringify(skillLevels, null, 2)}</pre>
     {players && players.length > 0 && (
     <div className="scouting-priorities">
         <h2>🔎 High-Priority Positions for Scouting</h2>

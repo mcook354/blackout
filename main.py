@@ -25,8 +25,11 @@ def read_root():
 
 # ✅ API Setup
 API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4"
-BASE_URL = "https://api.blackoutrugby.com/v1/"
-HEADERS = {"Authorization": f"Bearer {API_KEY}"}
+BASE_URL = "https://api.blackoutrugby.com/v1"
+HEADERS = {
+    "Authorization": f"Bearer {API_KEY}",
+    "Accept": "application/vnd.api+json"
+}
 
 import random
 
@@ -171,18 +174,15 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
                 })
 
         return {"data": players_data}
-    
+        
 @app.get("/academy/{club_id}")
 async def get_academy_prospect(club_id: str):
     """
     Fetches the current academy prospect for a given club ID from the Blackout Rugby API.
     Converts skill XP to levels before returning.
     """
-    url = f"{BASE_URL}/academy/{club_id}"
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json",
-    }
+    url = f"{BASE_URL}academy/{club_id}"  # ✅ Remove extra slash
+    headers = HEADERS
 
     async with httpx.AsyncClient() as client:
         response = await client.get(url, headers=headers)
@@ -193,8 +193,13 @@ async def get_academy_prospect(club_id: str):
     data = response.json()
 
     try:
+        # ✅ Handle case where no prospect exists
+        prospect_data = data["data"]["attributes"].get("newProspect")
+        if not prospect_data:
+            raise HTTPException(status_code=404, detail="No active academy prospect found")
+
         # ✅ Extract skills XP from the correct path in the JSON
-        skills_xp = data["data"]["attributes"]["newProspect"]["player"]["skills"]
+        skills_xp = prospect_data["player"]["skills"]
 
         # ✅ Convert XP to Levels using our conversion function
         converted_skills = {skill: xp_to_level(xp) for skill, xp in skills_xp.items()}

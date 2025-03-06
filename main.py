@@ -174,35 +174,31 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
 
         return {"data": players_data}
         
-@app.get("/academy/{club_id}")
-async def get_academy_prospect(club_id: str):
+@app.get("/academy")
+async def get_academy_prospect(club_id: str = Query(..., description="Club GUID to fetch players for")):
     """
     Fetches the current academy prospect for a given club ID.
     Converts skill XP to levels before returning.
     """
-    url = f"{BASE_URL}academy/{club_id}"  # ✅ Ensure correct URL format
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Accept": "application/vnd.api+json",
-    }
+    academy_url = f"{BASE_URL}academy/{club_id}"  # ✅ Ensure correct URL format
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers = headers)
+    async with httpx.AsyncClient(headers = HEADERS) as client:
+        response = await client.get(academy_url)
 
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")
 
-    data = response.json()
+    academy_data = response.json().get("data", [])
 
     # 🔥 Print the raw API response to console for debugging
-    print("🔍 Academy API Response:", data)
+    print("🔍 Academy API Response:", academy_data)
 
     try:
         # ✅ Debugging step: Check if "newProspect" exists
-        if "data" not in data or "attributes" not in data["data"]:
+        if "data" not in academy_data or "attributes" not in academy_data["data"]:
             raise KeyError("Missing 'data' or 'attributes' key in response")
 
-        prospect_data = data["data"]["attributes"].get("newProspect")
+        prospect_data = academy_data["data"]["attributes"].get("newProspect")
 
         # ✅ Debugging step: Log if no prospect found
         if not prospect_data:

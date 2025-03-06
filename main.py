@@ -175,48 +175,39 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
         return {"data": players_data}
         
 @app.get("/academy")
-async def get_academy_prospect(club_id: str = Query(..., description="Club GUID to fetch players for")):
+async def get_academy_prospect(club_id: str = Query(..., description="Club GUID to fetch academy data for")):
     """
     Fetches the current academy prospect for a given club ID.
     Converts skill XP to levels before returning.
     """
-    academy_url = f"{BASE_URL}academy/{club_id}"  # ✅ Ensure correct URL format
+    academy_url = f"{BASE_URL}academy/{club_id}"
 
-    async with httpx.AsyncClient(headers = HEADERS) as client:
+    async with httpx.AsyncClient(headers=HEADERS) as client:
         response = await client.get(academy_url)
 
     if response.status_code != 200:
+        print(f"Academy API Error {response.status_code}: {response.text}")  # ✅ Log error response
         raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")
 
-    academy_data = response.json()
-
-    # 🔥 Print the raw API response to console for debugging
-    print("🔍 Academy API Response:", academy_data)
+    data = response.json()
+    print("🔍 Academy API Response:", data)  # ✅ Log full API response for debugging
 
     try:
-        # ✅ Debugging step: Check if "newProspect" exists
-        if "data" not in academy_data or "attributes" not in academy_data["data"]:
-            raise KeyError("Missing 'data' or 'attributes' key in response")
+        prospect_data = data["data"]["attributes"].get("newProspect")
 
-        prospect_data = academy_data["data"]["attributes"].get("newProspect")
-
-        # ✅ Debugging step: Log if no prospect found
         if not prospect_data:
             print("⚠️ No active academy prospect found.")
             raise HTTPException(status_code=404, detail="No active academy prospect found")
 
         skills_xp = prospect_data["player"]["skills"]
 
-        # ✅ Debugging step: Log extracted skills XP
-        print("🛠 Extracted Skills XP:", skills_xp)
-
-        # ✅ Convert XP to Levels using our conversion function
+        # ✅ Convert XP to Levels
         converted_skills = {skill: xp_to_level(xp) for skill, xp in skills_xp.items()}
 
         return {"clubId": club_id, "skills": converted_skills}
 
     except KeyError as e:
-        print("❌ Error Processing Academy Data:", e)
+        print("❌ Error Processing Academy Data:", e)  # ✅ Debugging log
         raise HTTPException(status_code=500, detail="Invalid academy prospect data format")
 
 

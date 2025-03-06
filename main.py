@@ -188,7 +188,7 @@ async def get_academy_prospect(club_id: str = Query(..., description="Club GUID 
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")
 
-    academy_data = response.json().get("data", [])
+    academy_data = response.json()
 
     # 🔥 Print the raw API response to console for debugging
     print("🔍 Academy API Response:", academy_data)

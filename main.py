@@ -177,31 +177,46 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
 @app.get("/academy/{club_id}")
 async def get_academy_prospect(club_id: str):
     """
-    Fetches the current academy prospect for a given club ID from the Blackout Rugby API.
+    Fetches the current academy prospect for a given club ID.
     Converts skill XP to levels before returning.
     """
-    academy_url = f"{BASE_URL}academy/{club_id}"
+    url = f"{BASE_URL}academy/{club_id}"  # ✅ Ensure correct URL format
 
     async with httpx.AsyncClient(headers=HEADERS) as client:
-        response = await client.get(academy_url)
+        response = await client.get(url)
 
     if response.status_code != 200:
-        return {"error": "Failed to fetch academy prospect data"}
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")
 
-    academy_data = response.json()
+    data = response.json()
+
+    # 🔥 Print the raw API response to console for debugging
+    print("🔍 Academy API Response:", data)
 
     try:
-        prospect_data = academy_data["data"]["attributes"].get("newProspect")
+        # ✅ Debugging step: Check if "newProspect" exists
+        if "data" not in data or "attributes" not in data["data"]:
+            raise KeyError("Missing 'data' or 'attributes' key in response")
+
+        prospect_data = data["data"]["attributes"].get("newProspect")
+
+        # ✅ Debugging step: Log if no prospect found
         if not prospect_data:
+            print("⚠️ No active academy prospect found.")
             raise HTTPException(status_code=404, detail="No active academy prospect found")
 
         skills_xp = prospect_data["player"]["skills"]
 
+        # ✅ Debugging step: Log extracted skills XP
+        print("🛠 Extracted Skills XP:", skills_xp)
+
+        # ✅ Convert XP to Levels using our conversion function
         converted_skills = {skill: xp_to_level(xp) for skill, xp in skills_xp.items()}
 
         return {"clubId": club_id, "skills": converted_skills}
 
-    except KeyError:
+    except KeyError as e:
+        print("❌ Error Processing Academy Data:", e)
         raise HTTPException(status_code=500, detail="Invalid academy prospect data format")
 
 

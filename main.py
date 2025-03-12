@@ -27,7 +27,8 @@ def read_root():
 API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4"
 BASE_URL = "https://api.blackoutrugby.com/v1/"
 HEADERS = {
-    "Authorization": f"Bearer {API_KEY}"
+    "Token": API_KEY,
+    "Accept": "application/vnd.api+json"
 }
 
 import random
@@ -233,18 +234,25 @@ def xp_to_level(xp: int) -> int:
 
 # ✅ Fetch 5 random clubs for an Instant Friendly
 @app.get("/friendlies/random-clubs")
-async def get_random_clubs(club_id: str = Query(..., description="Club GUID to fetch friendlies data for"), min_level: int = 62, max_level: int = 68):
-    url = f"{BASE_URL}friendlies?instant=true&levelRange={min_level},{max_level}&club={club_id}"
-    
-    async with httpx.AsyncClient(headers=HEADERS) as client:
-        response = await client.get(url)
-    
-    print("Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
+async def get_random_clubs(club_id: str = Query(..., description="Club GUID to fetch random clubs for")):
+    """
+    Fetches a list of up to 5 random clubs that can be challenged for an instant friendly.
+    """
+    url = f"{BASE_URL}friendlies?instant=true&levelRange=62,68&club={club_id}"
+
+    print("🚀 Sending request to:", url)  # ✅ Debugging
+    print("🔐 Headers:", HEADERS)  # ✅ Debugging
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=HEADERS)  # ✅ Ensure headers are included
+
+    print("🌍 Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
 
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Failed to fetch random clubs")
+        raise HTTPException(status_code=response.status_code, detail=f"Failed to fetch random clubs: {response.text}")
 
-    return response.json()  # Send response back to FE
+    return response.json()
+
 
 # ✅ Initiate an Instant Friendly Match
 @app.post("/friendlies/start")

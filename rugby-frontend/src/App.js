@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PlayerCard from "./components/PlayerCard";
 import Academy from "./Academy";
+import Friendlies from "./Friendlies";
 import "./App.css"; // ✅ Import the CSS for dark theme
 
 

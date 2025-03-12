@@ -246,14 +246,19 @@ async def get_random_clubs(club_id: str = Query(..., description="Club GUID to f
     """
     url = f"{BASE_URL}friendlies"
 
+    headers = {
+        "Token": API_KEY,  # ✅ Correct header for authentication
+        "Accept": "application/vnd.api+json"
+    }
+
     params = {
         "instant": "true",
         "levelRange": "62,68",
-        "clubId": club_id
+        "club": club_id  # ✅ Pass the club_id as a query param
     }
 
-    async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
-        response = await client.get(url, params=params)
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers, params=params)
 
     print("🌍 Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
 

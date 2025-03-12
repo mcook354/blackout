@@ -6,20 +6,22 @@ const Friendlies = ({ clubId }) => {
   const [statusMessage, setStatusMessage] = useState("");
 
   const fetchRandomClubs = async () => {
-    setStatusMessage("Loading...");
     try {
-      const response = await fetch(`/friendlies/random-clubs?club_id=${clubId}&min_level=62&max_level=68`);
-      const data = await response.json();
-      if (data && data.data) {
-        setOpponents(data.data);
-        setStatusMessage("");
-      } else {
-        setStatusMessage("No opponents found.");
+      const response = await fetch(
+        `${BACKEND_URL}/friendlies/random-clubs?club_id=${clubId}&instant=true&levelRange=62,68`
+      );
+  
+      if (!response.ok) {
+        throw new Error(`Failed to fetch clubs: ${response.statusText}`);
       }
+  
+      const data = await response.json();
+      console.log("Random Clubs:", data);
+      setRandomClubs(data);
     } catch (error) {
-      setStatusMessage("Error fetching opponents.");
+      console.error("Error fetching random clubs:", error);
     }
-  };
+  };  
 
   const startFriendlyMatch = async () => {
     if (!selectedOpponent) return;

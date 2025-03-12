@@ -230,3 +230,41 @@ def xp_to_level(xp: int) -> int:
         else:
             break
     return level
+
+# ✅ Fetch 5 random clubs for an Instant Friendly
+@app.get("/friendlies/random-clubs")
+async def get_random_clubs(club_id: str, min_level: int = 62, max_level: int = 68):
+    url = f"{BASE_URL}friendlies?instant=true&levelRange={min_level},{max_level}&club={club_id}"
+    
+    async with httpx.AsyncClient(headers=HEADERS) as client:
+        response = await client.get(url)
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail="Failed to fetch random clubs")
+
+    return response.json()  # Send response back to FE
+
+# ✅ Initiate an Instant Friendly Match
+@app.post("/friendlies/start")
+async def start_friendly(initiator_club: str, opponent_club: str):
+    url = f"{BASE_URL}friendlies"
+    
+    payload = {
+        "data": {
+            "type": "friendlies",
+            "attributes": {
+                "instant": "true",
+                "isTrainingMatch": "true",
+                "initiatorClub": initiator_club,
+                "opponentClub": opponent_club
+            }
+        }
+    }
+    
+    async with httpx.AsyncClient(headers=HEADERS) as client:
+        response = await client.post(url, json=payload)
+
+    if response.status_code != 201:
+        raise HTTPException(status_code=response.status_code, detail="Failed to start friendly match")
+
+    return response.json()  # Send confirmation back to FE

@@ -129,6 +129,12 @@ const App = () => {
         >
           Academy
         </button>
+        <button 
+          className={`tab ${activeTab === "friendlies" ? "active" : ""}`} 
+          onClick={() => setActiveTab("friendlies")}
+        >
+          Friendlies
+        </button>
       </div>
   
       {loading ? (
@@ -177,6 +183,13 @@ const App = () => {
             players={players} 
             clubId={clubId} 
             getClubName={getClubName} 
+          />
+        </div>
+      )
+      (
+        <div className="friendlies-container">
+          <Friendlies 
+            clubId={clubId} 
           />
         </div>
       )}

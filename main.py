@@ -27,9 +27,13 @@ def read_root():
 API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaWF0IjoxNzM4MzQwNjE5LCJleHAiOjE3NDA5MzI2MTl9.YxfCDkqHsbBeyi4B7ch0iASXQkZ3OV_KwtLWDWLY_M4"
 BASE_URL = "https://api.blackoutrugby.com/v1/"
 HEADERS = {
-    "Token": API_KEY,
+    "Authorization": f"Bearer {API_KEY}"
+}
+ALT_HEADERS = {
+    "Token": API_KEY,  # ✅ Correct header for Academy & Friendlies API
     "Accept": "application/vnd.api+json"
 }
+
 
 import random
 
@@ -151,6 +155,8 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
 
         if response.status_code != 200:
             return {"error": "Failed to fetch player data"}
+        
+        print("🌍 Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
 
         players_data = response.json().get("data", [])
 
@@ -183,7 +189,7 @@ async def get_academy_prospect(club_id: str = Query(..., description="Club GUID 
     """
     academy_url = f"{BASE_URL}academy/{club_id}"
 
-    async with httpx.AsyncClient(headers=HEADERS) as client:
+    async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
         response = await client.get(academy_url)
 
     if response.status_code != 200:
@@ -238,13 +244,16 @@ async def get_random_clubs(club_id: str = Query(..., description="Club GUID to f
     """
     Fetches a list of up to 5 random clubs that can be challenged for an instant friendly.
     """
-    url = f"{BASE_URL}friendlies?instant=true&levelRange=62,68&club={club_id}"
+    url = f"{BASE_URL}friendlies"
 
-    print("🚀 Sending request to:", url)  # ✅ Debugging
-    print("🔐 Headers:", HEADERS)  # ✅ Debugging
+    params = {
+        "instant": "true",
+        "levelRange": "62,68",
+        "club": club_id
+    }
 
-    async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=HEADERS)  # ✅ Ensure headers are included
+    async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
+        response = await client.get(url, params=params)
 
     print("🌍 Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
 
@@ -271,7 +280,7 @@ async def start_friendly(initiator_club: str, opponent_club: str):
         }
     }
     
-    async with httpx.AsyncClient(headers=HEADERS) as client:
+    async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
         response = await client.post(url, json=payload)
 
     print("Blackout API Response:", response.status_code, response.text)  # ✅ Debugging

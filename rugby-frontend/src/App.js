@@ -116,7 +116,7 @@ const App = () => {
         <h1>🏉 {getClubName(clubId)} </h1>
       </div>
   
-      {/* Tabs for Players and Academy */}
+      {/* Tabs for Players, Academy, and Friendlies */}
       <div className="tab-container">
         <button 
           className={`tab ${activeTab === "players" ? "active" : ""}`} 
@@ -139,7 +139,7 @@ const App = () => {
       </div>
   
       {loading ? (
-        <p>Loading {activeTab === "players" ? "players" : "academy players"}...</p>
+        <p>Loading {activeTab === "players" ? "players" : "academy"}...</p>
       ) : activeTab === "players" ? (
         allPositions.map((position) => (
           <div key={position} className="expandable-section">
@@ -178,7 +178,7 @@ const App = () => {
             </div>
           </div>
         ))
-      ) : (
+      ) : activeTab === "academy" ? (
         <div className="academy-container">
           <Academy 
             players={players} 
@@ -186,14 +186,12 @@ const App = () => {
             getClubName={getClubName} 
           />
         </div>
-      )
-      (
+      ) : activeTab === "friendlies" ? (
         <div className="friendlies-container">
-          <Friendlies 
-            clubId={clubId} 
-          />
+          <Friendlies clubId={clubId} />
         </div>
-      )}
+      ) : null}
+  
       <button onClick={() => setShowLogic(!showLogic)} className="button">
         {showLogic ? "Hide Logic Explanation ▲" : "Show Logic Explanation ▼"}
       </button>
@@ -209,7 +207,7 @@ const App = () => {
         </div>
       )}
     </div>
-  );
+  );  
   
 };
 

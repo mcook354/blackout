@@ -249,7 +249,7 @@ async def get_random_clubs(club_id: str = Query(..., description="Club GUID to f
     params = {
         "instant": "true",
         "levelRange": "62,68",
-        "club": club_id
+        "clubId": club_id
     }
 
     async with httpx.AsyncClient(headers=ALT_HEADERS) as client:

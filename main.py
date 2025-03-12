@@ -233,11 +233,13 @@ def xp_to_level(xp: int) -> int:
 
 # ✅ Fetch 5 random clubs for an Instant Friendly
 @app.get("/friendlies/random-clubs")
-async def get_random_clubs(club_id: str, min_level: int = 62, max_level: int = 68):
+async def get_random_clubs(club_id: str = Query(..., description="Club GUID to fetch friendlies data for"), min_level: int = 62, max_level: int = 68):
     url = f"{BASE_URL}friendlies?instant=true&levelRange={min_level},{max_level}&club={club_id}"
     
     async with httpx.AsyncClient(headers=HEADERS) as client:
         response = await client.get(url)
+    
+    print("Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
 
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail="Failed to fetch random clubs")
@@ -263,6 +265,8 @@ async def start_friendly(initiator_club: str, opponent_club: str):
     
     async with httpx.AsyncClient(headers=HEADERS) as client:
         response = await client.post(url, json=payload)
+
+    print("Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
 
     if response.status_code != 201:
         raise HTTPException(status_code=response.status_code, detail="Failed to start friendly match")

@@ -190,33 +190,45 @@ async def get_academy_prospect(club_id: str = Query(..., description="Club GUID 
     """
     academy_url = f"{BASE_URL}academy/{club_id}"
 
-    async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
-        response = await client.get(academy_url)
-
-    if response.status_code != 200:
-        print(f"Academy API Error {response.status_code}: {response.text}")  # ✅ Log error response
-        raise HTTPException(status_code=response.status_code, detail="Failed to fetch academy prospect data")
-
-    data = response.json()
-    print("🔍 Academy API Response:", data)  # ✅ Log full API response for debugging
-
     try:
-        prospect_data = data["data"]["attributes"].get("newProspect")
+        async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:  # 🔥 Set 20s timeout
+            response = await client.get(academy_url)
+
+        print("🔥 Academy API Response:", response.status_code, response.text)  # ✅ Debugging
+
+        if response.status_code != 200:
+            raise HTTPException(status_code=response.status_code, detail=f"Failed to fetch academy prospect data: {response.text}")
+
+        data = response.json()
+
+        # ✅ Extract prospect details
+        prospect_data = data.get("data", {}).get("attributes", {}).get("newProspect")
 
         if not prospect_data:
             print("⚠️ No active academy prospect found.")
             raise HTTPException(status_code=404, detail="No active academy prospect found")
 
+        # ✅ Extract XP-based skills
         skills_xp = prospect_data["player"]["skills"]
 
-        # ✅ Convert XP to Levels
+        # ✅ Convert XP to Levels using the existing function
         converted_skills = {skill: xp_to_level(xp) for skill, xp in skills_xp.items()}
 
-        return {"clubId": club_id, "skills": converted_skills}
+        return {
+            "clubId": club_id,
+            "prospect": {
+                "firstName": prospect_data["player"].get("firstName", "Unknown"),
+                "lastName": prospect_data["player"].get("lastName", ""),
+                "skills": converted_skills,  # ✅ Now returning correct skill levels!
+            },
+        }
 
     except KeyError as e:
         print("❌ Error Processing Academy Data:", e)  # ✅ Debugging log
         raise HTTPException(status_code=500, detail="Invalid academy prospect data format")
+
+    except httpx.ReadTimeout:
+        raise HTTPException(status_code=504, detail="Timeout: Blackout API took too long to respond.")
 
 
 def xp_to_level(xp: int) -> int:
@@ -231,7 +243,7 @@ def xp_to_level(xp: int) -> int:
         (13252, 45)
     ]
 
-    level = 9
+    level = 9  # ✅ Default starting level
     for threshold, lvl in xp_table:
         if xp >= threshold:
             level = lvl

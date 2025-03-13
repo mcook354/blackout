@@ -76,14 +76,16 @@ const Friendlies = ({ clubId }) => {
   // Fetch current automation status on component mount
   useEffect(() => {
     fetch(`https://blackout-it05.onrender.com/automation/status`)
-      .then((res) => res.json())
-      .then((data) => {
-        setAutomationEnabled(data.automationEnabled);
-      })
-      .catch((error) => {
-        console.error("❌ Failed to fetch automation status:", error);
-      });
-  }, []);
+    .then((res) => {
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    })
+    .then((data) => {
+      console.log("Automation status from BE:", data);
+      setAutomationEnabled(data.automationEnabled);
+    })
+    .catch((err) => console.error("❌ Failed to fetch automation status:", err));
+}, []);
 
   const toggleAutomation = async () => {
     try {
@@ -93,8 +95,8 @@ const Friendlies = ({ clubId }) => {
       );
       const data = await response.json();
 
-      setAutomationEnabled(data.automation_enabled);
-      alert(`Automation is now ${data.automation_enabled ? "ON" : "OFF"}.`);
+      setAutomationEnabled(data.automationEnabled);
+      alert(`Automation is now ${data.automationEnabled ? "ON" : "OFF"}.`);
     } catch (error) {
       console.error("❌ Failed to toggle automation:", error);
     }

@@ -320,12 +320,12 @@ match_counter = 0
 last_reset_date = datetime.now(timezone.utc).date()
 
 # ✅ Automation status (initially off, controlled via FE later)
-automation_enabled = False
+automationEnabled = False
 
 async def auto_start_friendly():
-    global match_counter, last_reset_date, automation_enabled
+    global match_counter, last_reset_date, automationEnabled
 
-    if not automation_enabled:
+    if not automationEnabled:
         print("🛑 Automation disabled; skipping execution.")
         return
 
@@ -391,15 +391,15 @@ scheduler.start()
 # ✅ API endpoint to manually trigger automation from FE
 @app.post("/automation/toggle")
 def toggle_automation(state: bool):
-    global automation_enabled
-    automation_enabled = state
-    status = "enabled" if automation_enabled else "disabled"
+    global automationEnabled
+    automationEnabled = state
+    status = "enabled" if automationEnabled else "disabled"
     print(f"⚙️ Automation {status} via frontend.")
-    return {"automation_enabled": automation_enabled}
+    return {"automationEnabled": automationEnabled}
 
 @app.get("/automation/status")
 def get_automation_status():
-    return {"automation_enabled": automation_enabled}
+    return {"automationEnabled": automationEnabled}
 
 @app.get("/")
 def root():

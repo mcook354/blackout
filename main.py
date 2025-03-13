@@ -24,6 +24,8 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "CORS fixed!"}
+def root():
+    return {"message": "Friendly Match Automation API is running."}
 
 # ✅ API Setup
 API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaXNSZWZyZXNoIjp0cnVlLCJpYXQiOjE3NDExMDY2NjAsImV4cCI6MTc1NjY1ODY2MH0.gpXlsXtOQYSxDT2IytAScE1mgOP_kvfVkJbNWNpXQz4"
@@ -345,7 +347,7 @@ async def auto_start_friendly():
     search_url = f"{BASE_URL}friendlies?instant=true&levelRange=62,68&club={CLUB_ID}"
 
     try:
-        async with httpx.AsyncClient(headers=HEADERS, timeout=20.0) as client:
+        async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
             # ✅ Corrected variable name
             search_response = await client.get(search_url)
 
@@ -385,7 +387,7 @@ async def auto_start_friendly():
 
 # ✅ Schedule job to run every X hours/minutes
 scheduler = BackgroundScheduler()
-scheduler.add_job(lambda: asyncio.run(auto_start_friendly()), "interval", minutes=20)
+scheduler.add_job(lambda: asyncio.run(auto_start_friendly()), "interval", minutes=10)
 scheduler.start()
 
 # ✅ API endpoint to manually trigger automation from FE
@@ -400,10 +402,6 @@ def toggle_automation(state: bool):
 @app.get("/automation/status")
 def get_automation_status():
     return {"automationEnabled": automationEnabled}
-
-@app.get("/")
-def root():
-    return {"message": "Friendly Match Automation API is running."}
 
 @app.post("/friendlies/manual-auto-match")
 async def manual_auto_match():

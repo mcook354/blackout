@@ -46,7 +46,10 @@ const Friendlies = ({ clubId }) => {
         "https://blackout-it05.onrender.com/friendlies/start-match",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.api+json",
+          },
           body: JSON.stringify({
             initiator_club: clubId,
             opponent_club: selectedOpponent,

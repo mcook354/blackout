@@ -31,7 +31,8 @@ HEADERS = {
 }
 ALT_HEADERS = {
     "Token": API_KEY,  # ✅ Correct header for Academy & Friendlies API
-    "Accept": "application/vnd.api+json"
+    "Accept": "application/vnd.api+json",
+    "Content-Type": "application/vnd.api+json",
 }
 
 

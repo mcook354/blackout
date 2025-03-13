@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 
 const Friendlies = ({ clubId }) => {
-  const [opponents, setOpponents] = useState([]);
+  const [randomClubs, setRandomClubs] = useState([]);
   const [selectedOpponent, setSelectedOpponent] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
 
   const fetchRandomClubs = async () => {
     try {
       const response = await fetch(
-        `${BACKEND_URL}/friendlies/random-clubs?club_id=${clubId}&instant=true&levelRange=62,68`
+        `https://blackout-it05.onrender.com/friendlies/random-clubs?club_id=${clubId}&instant=true&levelRange=62,68`
       );
   
       if (!response.ok) {
@@ -56,9 +56,9 @@ const Friendlies = ({ clubId }) => {
       <button onClick={fetchRandomClubs}>Find Opponents</button>
       {statusMessage && <p>{statusMessage}</p>}
 
-      {opponents.length > 0 && (
+      {randomClubs.length > 0 && (
         <ul>
-          {opponents.map((club) => (
+          {randomClubs.map((club) => (
             <li key={club.id}>
               <input
                 type="radio"

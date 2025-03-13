@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import "./Friendlies.css";
 
 const Friendlies = ({ clubId }) => {
   const [randomClubs, setRandomClubs] = useState([]);
   const [selectedOpponent, setSelectedOpponent] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [automationEnabled, setAutomationEnabled] = useState(false);
 
   const fetchRandomClubs = async () => {
     if (!clubId) return;
@@ -71,9 +73,42 @@ const Friendlies = ({ clubId }) => {
     }
   };
 
+  // Fetch current automation status on component mount
+  useEffect(() => {
+    fetch(`https://blackout-it05.onrender.com/automation/status`)
+      .then((res) => res.json())
+      .then((data) => {
+        setAutomationEnabled(data.automation_enabled);
+      })
+      .catch((error) => {
+        console.error("❌ Failed to fetch automation status:", error);
+      });
+  }, []);
+
+  const toggleAutomation = async () => {
+    try {
+      const response = await fetch(
+        `https://blackout-it05.onrender.com/automation/toggle?state=${!automation_enabled}`,
+        { method: "POST" }
+      );
+      const data = await response.json();
+
+      setAutomationEnabled(data.automation_enabled);
+      alert(`Automation is now ${data.automation_enabled ? "ON" : "OFF"}.`);
+    } catch (error) {
+      console.error("❌ Failed to toggle automation:", error);
+    }
+  };
+
   return (
     <div className="friendlies-container">
       <h2>⚔️ Instant Friendly Matches</h2>
+
+      <button onClick={toggleAutomation} className={`button ${automationEnabled ? "enabled" : "disabled"}`}>
+        {automationEnabled ? "Disable Automation 🔴" : "Enable Automation 🟢"}
+      </button>
+
+      {statusMessage && <p className="status-message">{statusMessage}</p>}
 
       <button onClick={fetchRandomClubs} className="button">
         Find Opponents

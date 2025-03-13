@@ -2,6 +2,8 @@ import asyncio
 import httpx
 from fastapi import FastAPI, Query, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime, timezone
 
 app = FastAPI()
 
@@ -156,8 +158,6 @@ async def get_players(club_id: str = Query(..., description="Club GUID to fetch 
 
         if response.status_code != 200:
             return {"error": "Failed to fetch player data"}
-        
-        print("🌍 Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
 
         players_data = response.json().get("data", [])
 
@@ -311,3 +311,96 @@ async def start_friendly_match(request: Request):
         raise HTTPException(status_code=response.status_code, detail=f"Failed to start friendly match: {response.text}")
 
     return response.json()
+
+# ✅ The club ID to run the job for
+CLUB_ID = "3ac80dc7-3c45-49c5-9b2a-e2c9c8972342"
+
+# ✅ Track daily matches
+match_counter = 0
+last_reset_date = datetime.now(timezone.utc).date()
+
+# ✅ Automation status (initially off, controlled via FE later)
+automation_enabled = False
+
+async def auto_start_friendly():
+    global match_counter, last_reset_date, automation_enabled
+
+    if not automation_enabled:
+        print("🛑 Automation disabled; skipping execution.")
+        return
+
+    # ✅ Reset the match counter each day at midnight UTC
+    today = datetime.now(timezone.utc).date()
+    if today != last_reset_date:
+        match_counter = 0
+        last_reset_date = today
+        print("🔄 Daily match counter reset.")
+
+    # ✅ Limit the number of friendly matches per day
+    MAX_MATCHES_PER_DAY = 5
+    if match_counter >= MAX_MATCHES_PER_DAY:
+        print("🚫 Maximum daily friendly matches reached.")
+        return
+
+    search_url = f"{BASE_URL}friendlies?instant=true&levelRange=62,68&club={CLUB_ID}"
+
+    try:
+        async with httpx.AsyncClient(headers=HEADERS, timeout=20.0) as client:
+            # ✅ Corrected variable name
+            search_response = await client.get(search_url)
+
+        clubs = search_response.json().get("data", {}).get("relationships", {}).get("clubs", {}).get("data", [])
+
+        if not clubs:
+            print("⚠️ No available clubs found.")
+            return
+
+        opponent_club = clubs[0]["id"]
+        print(f"🤝 Selected opponent: {opponent_club}")
+
+        match_url = f"{BASE_URL}friendlies"
+        payload = {
+            "data": {
+                "type": "friendlies",
+                "attributes": {
+                    "instant": True,
+                    "isTrainingMatch": True,
+                    "initiatorClub": CLUB_ID,
+                    "opponentClub": opponent_club,
+                }
+            }
+        }
+
+        async with httpx.AsyncClient(headers=HEADERS, timeout=20.0) as client:
+            match_response = await client.post(match_url, json=payload)
+
+        if match_response.status_code == 201:
+            match_counter += 1
+            print(f"✅ Friendly match started successfully ({match_counter}/{MAX_MATCHES_PER_DAY}).")
+        else:
+            print(f"❌ Failed to start friendly match: {match_response.text}")
+
+    except httpx.ReadTimeout:
+        print("⏳ Request to Blackout API timed out.")
+
+# ✅ Schedule job to run every X hours/minutes
+scheduler = BackgroundScheduler()
+scheduler.add_job(lambda: asyncio.run(auto_start_friendly()), "interval", minutes=20)
+scheduler.start()
+
+# ✅ API endpoint to manually trigger automation from FE
+@app.post("/automation/toggle")
+def toggle_automation(state: bool):
+    global automation_enabled
+    automation_enabled = state
+    status = "enabled" if automation_enabled else "disabled"
+    print(f"⚙️ Automation {status} via frontend.")
+    return {"automation_enabled": automation_enabled}
+
+@app.get("/automation/status")
+def get_automation_status():
+    return {"automation_enabled": automation_enabled}
+
+@app.get("/")
+def root():
+    return {"message": "Friendly Match Automation API is running."}

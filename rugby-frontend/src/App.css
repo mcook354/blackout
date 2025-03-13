@@ -12,7 +12,16 @@ body {
 }
 
 /* 🗂️ Section Headers */
-h1, h2 {
+h1 {
+  color: #f5f4f1;
+  text-align: left;
+  margin: 20px 0;
+  font-size: 24px;
+  text-transform: capitalize;
+  letter-spacing: 1px;
+}
+
+h2 {
   color: #ffcc00;
   text-align: center;
   margin: 20px 0;
@@ -166,3 +175,12 @@ h1, h2 {
   justify-content: center;
   margin-top: 30px;
 }
+
+.button.enabled {
+  background-color: #4caf50; /* Green for active */
+}
+
+.button.disabled {
+  background-color: #f44336; /* Red for inactive */
+}
+

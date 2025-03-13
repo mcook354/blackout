@@ -87,20 +87,20 @@ const Friendlies = ({ clubId }) => {
     .catch((err) => console.error("❌ Failed to fetch automation status:", err));
 }, []);
 
-  const toggleAutomation = async () => {
-    try {
-      const response = await fetch(
-        `https://blackout-it05.onrender.com/automation/toggle?state=${!automationEnabled}`,
-        { method: "POST" }
-      );
-      const data = await response.json();
-
+const toggleAutomation = () => {
+  fetch(`https://blackout-it05.onrender.com/automation/toggle?state=${!automationEnabled}`, {
+    method: "POST",
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    })
+    .then((data) => {
+      console.log("Toggled automation status:", data);
       setAutomationEnabled(data.automationEnabled);
-      alert(`Automation is now ${data.automationEnabled ? "ON" : "OFF"}.`);
-    } catch (error) {
-      console.error("❌ Failed to toggle automation:", error);
-    }
-  };
+    })
+    .catch((err) => console.error("❌ Failed to toggle automation:", err));
+};
 
   return (
     <div className="friendlies-container">

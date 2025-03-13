@@ -290,8 +290,10 @@ async def start_friendly_match(request: Request):
         }
     }
 
-    async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
+    async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
         response = await client.post(url, json=payload)
+
+    print("🔥 Blackout API Response:", response.status_code, response.text)
 
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code, detail=f"Failed to start friendly match: {response.text}")

@@ -373,7 +373,7 @@ async def auto_start_friendly():
             }
         }
 
-        async with httpx.AsyncClient(headers=HEADERS, timeout=20.0) as client:
+        async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
             match_response = await client.post(match_url, json=payload)
 
         if match_response.status_code == 201:

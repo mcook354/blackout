@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Friendlies.css";
 
 const Friendlies = ({ clubId }) => {
@@ -78,7 +78,7 @@ const Friendlies = ({ clubId }) => {
     fetch(`https://blackout-it05.onrender.com/automation/status`)
       .then((res) => res.json())
       .then((data) => {
-        setAutomationEnabled(data.automation_enabled);
+        setAutomationEnabled(data.automationEnabled);
       })
       .catch((error) => {
         console.error("❌ Failed to fetch automation status:", error);
@@ -88,7 +88,7 @@ const Friendlies = ({ clubId }) => {
   const toggleAutomation = async () => {
     try {
       const response = await fetch(
-        `https://blackout-it05.onrender.com/automation/toggle?state=${!automation_enabled}`,
+        `https://blackout-it05.onrender.com/automation/toggle?state=${!automationEnabled}`,
         { method: "POST" }
       );
       const data = await response.json();

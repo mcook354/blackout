@@ -267,12 +267,16 @@ async def get_random_clubs(club_id: str = Query(..., description="Club GUID to f
 
     return response.json()
 
+@app.post("/friendlies/start-match")
+async def start_friendly_match(request: Request):
+    data = await request.json()
+    initiator_club = data.get("initiator_club")
+    opponent_club = data.get("opponent_club")
 
-# ✅ Initiate an Instant Friendly Match
-@app.post("/friendlies/start")
-async def start_friendly(initiator_club: str, opponent_club: str):
+    if not initiator_club or not opponent_club:
+        raise HTTPException(status_code=400, detail="Missing club IDs")
+
     url = f"{BASE_URL}friendlies"
-    
     payload = {
         "data": {
             "type": "friendlies",
@@ -284,13 +288,11 @@ async def start_friendly(initiator_club: str, opponent_club: str):
             }
         }
     }
-    
+
     async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
         response = await client.post(url, json=payload)
 
-    print("Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=f"Failed to start friendly match: {response.text}")
 
-    if response.status_code != 201:
-        raise HTTPException(status_code=response.status_code, detail="Failed to start friendly match")
-
-    return response.json()  # Send confirmation back to FE
+    return response.json()

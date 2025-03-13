@@ -404,3 +404,9 @@ def get_automation_status():
 @app.get("/")
 def root():
     return {"message": "Friendly Match Automation API is running."}
+
+@app.post("/friendlies/manual-auto-match")
+async def manual_auto_match():
+    await auto_start_friendly()
+    return {"message": "✅ Friendly match manually triggered"}
+

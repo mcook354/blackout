@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PlayerCard from "./components/PlayerCard";
 import Academy from "./Academy";
 import Friendlies from "./Friendlies";
+import Ladders from "./Ladders";
 import "./App.css"; // ✅ Import the CSS for dark theme
 
 
@@ -136,6 +137,12 @@ const App = () => {
         >
           Friendlies
         </button>
+        <button 
+          className={`tab ${activeTab === "ladder" ? "active" : ""}`} 
+          onClick={() => setActiveTab("ladder")}
+        >
+          Ladder
+        </button>
       </div>
   
       {loading ? (
@@ -189,6 +196,10 @@ const App = () => {
       ) : activeTab === "friendlies" ? (
         <div className="friendlies-container">
           <Friendlies clubId={clubId} />
+        </div>
+      ) : activeTab === "ladder" ? (
+        <div className="ladder-container">
+          <Ladders clubId={clubId} />
         </div>
       ) : null}
   

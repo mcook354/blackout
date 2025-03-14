@@ -408,3 +408,54 @@ async def manual_auto_match():
     await auto_start_friendly()
     return {"message": "✅ Friendly match manually triggered"}
 
+# ✅ Fetch ladder clubs near to the current club
+@app.get("/ladder/clubs")
+async def get_ladder_clubs(club_id: str = Query(..., description="Club GUID to fetch ladder clubs for")):
+    """
+    Fetches a list of clubs near to the currently selected club in the ladder.
+    """
+    url = f"{BASE_URL}ladder-clubs?ladder=global&club={club_id}"
+
+    headers = {
+        "Accept": "application/vnd.api+json"
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, headers=headers)
+
+    print("🌍 Blackout API Response:", response.status_code, response.text)  # ✅ Debugging
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=f"Failed to fetch ladder clubs: {response.text}")
+
+    return response.json()
+
+@app.post("/ladder/start-match")
+async def start_ladder_match(request: Request):
+    data = await request.json()
+    challenger_club = data.get("challenger_club")
+    challengee_club = data.get("challengee_club")
+
+    if not challenger_club or not challengee_club:
+        raise HTTPException(status_code=400, detail="Missing club IDs")
+
+    url = f"{BASE_URL}ladder-clubs"
+    payload = {
+        "data": {
+            "type": "ladder-clubs",
+            "attributes": {
+                "challengerId": challenger_club,
+                "challengeeId": challengee_club
+            }
+        }
+    }
+
+    async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
+        response = await client.post(url, json=payload)
+
+    print("🔥 Blackout API Response:", response.status_code, response.text)
+
+    if response.status_code != 200:
+        raise HTTPException(status_code=response.status_code, detail=f"Failed to start ladder match: {response.text}")
+
+    return response.json()

@@ -7,32 +7,15 @@ const Ladders = ({ clubId }) => {
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const fetchLadderClubs = async () => {
-    if (!clubId) return;
-
-    setLoading(true);
-    setStatusMessage("");
-    try {
-      const response = await fetch(
-        `https://blackout-it05.onrender.com/ladder/clubs?club_id=${clubId}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch clubs: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log("🔹 Ladder Clubs:", data);
-
-      // ✅ Extract club list from response
-      const clubs = data?.data?.relationships?.clubs?.data || [];
-      setLadderClubs(clubs);
-    } catch (error) {
-      console.error("❌ Error fetching ladder clubs:", error);
-      setStatusMessage("❌ Failed to fetch opponents.");
-    } finally {
-      setLoading(false);
-    }
+  const findOpponents = () => {
+    fetch(`https://blackout-it05.onrender.com/ladder/clubs`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Ladder Clubs from BE:", data);
+        const clubs = data.data || []; // Corrected exactly here
+        setLadderClubs(clubs.filter((club) => club.attributes.isChallengeable)); // Clearly filter here directly
+      })
+      .catch((err) => console.error("Error fetching ladder clubs:", err));
   };
 
   const startLadderMatch = async () => {
@@ -75,21 +58,14 @@ const Ladders = ({ clubId }) => {
   return (
     <div className="ladder-container">
       <h2>🪜 Instant Ladder Matches</h2>
-
-      {statusMessage && <p className="status-message">{statusMessage}</p>}
-
-      <button onClick={fetchLadderClubs} className="button">
-        Find Opponents
-      </button>
-
-      {loading && <p>Loading available clubs...</p>}
-      {statusMessage && <p className="status-message">{statusMessage}</p>}
-
+  
+      <button className="ladder-button" onClick={findLadderClubs}>Find Opponents</button>
+  
       {ladderClubs.length > 0 ? (
         <div>
           <h3>Select an Opponent:</h3>
           <ul>
-            {ladderClubs.map((club, index) => (
+            {ladderClubs.map((club) => (
               <li key={club.id}>
                 <input
                   type="radio"
@@ -97,20 +73,16 @@ const Ladders = ({ clubId }) => {
                   value={club.id}
                   onChange={() => setSelectedOpponent(club.id)}
                 />
-                <label> Club {index + 1}</label>
+                {club.id} (Rank: {club.attributes.rank})
               </li>
             ))}
           </ul>
-
-          <button onClick={startLadderMatch} disabled={!selectedOpponent} className="button">
-            Start Match
-          </button>
         </div>
       ) : (
-        !loading && <p>No available opponents found.</p>
+        <p>No available opponents found.</p>
       )}
     </div>
   );
-};
+};  
 
 export default Ladders;

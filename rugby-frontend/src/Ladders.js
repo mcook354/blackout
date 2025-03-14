@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Ladders.css";
 
-const Friendlies = ({ clubId }) => {
+const Ladders = ({ clubId }) => {
   const [ladderClubs, setLadderClubs] = useState([]);
   const [selectedOpponent, setSelectedOpponent] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
@@ -28,7 +28,7 @@ const Friendlies = ({ clubId }) => {
       const clubs = data?.data?.relationships?.clubs?.data || [];
       setLadderClubs(clubs);
     } catch (error) {
-      console.error("❌ Error fetching random clubs:", error);
+      console.error("❌ Error fetching ladder clubs:", error);
       setStatusMessage("❌ Failed to fetch opponents.");
     } finally {
       setLoading(false);
@@ -89,7 +89,7 @@ const Friendlies = ({ clubId }) => {
         <div>
           <h3>Select an Opponent:</h3>
           <ul>
-            {randomClubs.map((club, index) => (
+            {ladderClubs.map((club, index) => (
               <li key={club.id}>
                 <input
                   type="radio"

@@ -59,7 +59,7 @@ const Ladders = ({ clubId }) => {
     <div className="ladder-container">
       <h2>🪜 Instant Ladder Matches</h2>
   
-      <button className="ladder-button" onClick={findLadderClubs}>Find Opponents</button>
+      <button className="ladder-button" onClick={findOpponents}>Find Opponents</button>
   
       {ladderClubs.length > 0 ? (
         <div>
@@ -77,12 +77,15 @@ const Ladders = ({ clubId }) => {
               </li>
             ))}
           </ul>
+          <button onClick={startLadderMatch} disabled={!selectedOpponent} className="button">
+            Start Match
+          </button>
         </div>
       ) : (
-        <p>No available opponents found.</p>
+        !loading && <p>No available opponents found.</p>
       )}
     </div>
   );
-};  
+};
 
 export default Ladders;

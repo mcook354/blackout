@@ -317,34 +317,35 @@ async def start_friendly_match(request: Request):
 # ✅ The club ID to run the job for
 CLUB_ID = "3ac80dc7-3c45-49c5-9b2a-e2c9c8972342"
 
-# ✅ Track daily matches
-match_counter = 0
-last_reset_date = datetime.now(timezone.utc).date()
+# ✅ Track daily friendly matches
+friendly_match_counter = 0
+ladder_match_counter = 0
+last_friendly_reset_date = datetime.now(timezone.utc).date()
 
 # ✅ Automation status (initially off, controlled via FE later)
-automationEnabled = False
+friendlyAutomationEnabled = False
 
 async def auto_start_friendly():
-    global match_counter, last_reset_date, automationEnabled
+    global friendly_match_counter, last_friendly_reset_date, friendlyAutomationEnabled
 
-    if not automationEnabled:
+    if not friendlyAutomationEnabled:
         print("🛑 Automation disabled; skipping execution.")
         return
 
     # ✅ Reset the match counter each day at midnight UTC
     today = datetime.now(timezone.utc).date()
-    if today != last_reset_date:
-        match_counter = 0
-        last_reset_date = today
+    if today != last_friendly_reset_date:
+        friendly_match_counter = 0
+        last_friendly_reset_date = today
         print("🔄 Daily match counter reset.")
 
     # ✅ Limit the number of friendly matches per day
-    MAX_MATCHES_PER_DAY = 5
-    if match_counter >= MAX_MATCHES_PER_DAY:
+    MAX_MATCHES_PER_DAY = 10
+    if friendly_match_counter >= MAX_MATCHES_PER_DAY:
         print("🚫 Maximum daily friendly matches reached.")
         return
 
-    search_url = f"{BASE_URL}friendlies?instant=true&levelRange=62,68&club={CLUB_ID}"
+    search_url = f"{BASE_URL}friendlies?instant=true&levelRange=63,69&club={CLUB_ID}"
 
     try:
         async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
@@ -377,36 +378,13 @@ async def auto_start_friendly():
             match_response = await client.post(match_url, json=payload)
 
         if match_response.status_code == 201:
-            match_counter += 1
-            print(f"✅ Friendly match started successfully ({match_counter}/{MAX_MATCHES_PER_DAY}).")
+            friendly_match_counter += 1
+            print(f"✅ Friendly match started successfully ({friendly_match_counter}/{MAX_MATCHES_PER_DAY}).")
         else:
             print(f"❌ Failed to start friendly match: {match_response.text}")
 
     except httpx.ReadTimeout:
         print("⏳ Request to Blackout API timed out.")
-
-# ✅ Schedule job to run every X hours/minutes
-scheduler = BackgroundScheduler()
-scheduler.add_job(lambda: asyncio.run(auto_start_friendly()), "interval", minutes=10)
-scheduler.start()
-
-# ✅ API endpoint to manually trigger automation from FE
-@app.post("/automation/toggle")
-def toggle_automation(state: bool):
-    global automationEnabled
-    automationEnabled = state
-    status = "enabled" if automationEnabled else "disabled"
-    print(f"⚙️ Automation {status} via frontend.")
-    return {"automationEnabled": automationEnabled}
-
-@app.get("/automation/status")
-def get_automation_status():
-    return {"automationEnabled": automationEnabled}
-
-@app.post("/friendlies/manual-auto-match")
-async def manual_auto_match():
-    await auto_start_friendly()
-    return {"message": "✅ Friendly match manually triggered"}
 
 # ✅ Fetch ladder clubs near to the current club
 @app.get("/ladder/clubs")
@@ -459,3 +437,102 @@ async def start_ladder_match(request: Request):
         raise HTTPException(status_code=response.status_code, detail=f"Failed to start ladder match: {response.text}")
 
     return response.json()
+
+async def auto_start_ladder():
+    global ladderAutomationEnabled, ladder_match_counter, last_ladder_reset_date
+
+    # clearly control via FE (add FE toggle later if desired)
+    ladderAutomationEnabled = True  # Explicitly toggle or manage via frontend later
+
+    if not ladderAutomationEnabled:
+        print("🛑 Ladder Automation disabled; skipping execution.")
+        return
+
+    today = datetime.now(timezone.utc).date()
+    if today != last_ladder_reset_date:
+        ladder_match_counter = 0
+        last_ladder_reset_date = today
+        print("🔄 Daily ladder match counter reset.")
+
+    MAX_LADDER_MATCHES_PER_DAY = 10
+    if ladder_match_counter >= MAX_LADDER_MATCHES_PER_DAY:
+        print("🚫 Max daily ladder matches reached.")
+        return
+
+    search_url = f"{BASE_URL}ladder?club_id={CLUB_ID}"
+
+    try:
+        async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
+            search_response = await client.get(search_url)
+
+        clubs = search_response.json().get("data", [])
+        available_clubs = [club for club in clubs if club["attributes"]["isChallengeable"]]
+
+        if not available_clubs:
+            print("⚠️ No available ladder clubs found.")
+            return
+
+        opponent_club = available_clubs[0]["id"]
+        print(f"🤝 Ladder opponent selected: {opponent_club}")
+
+        payload = {
+            "data": {
+                "type": "ladderMatch",
+                "attributes": {
+                    "challengerClub": CLUB_ID,
+                    "challengeeClub": opponent_club,
+                }
+            }
+        }
+
+        async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
+            match_response = await client.post(f"{BASE_URL}ladder-matches", json=payload)
+
+        if match_response.status_code == 201:
+            ladder_match_counter += 1
+            print(f"✅ Ladder match started ({ladder_match_counter}/{MAX_LADDER_MATCHES_PER_DAY}).")
+        else:
+            print(f"❌ Ladder match failed: {match_response.text}")
+
+    except Exception as e:
+        print(f"❌ Ladder automation exception: {e}")
+
+scheduler = BackgroundScheduler()
+
+next_job = {"is_friendly": True}
+
+async def alternating_task():
+    if next_job["is_friendly"]:
+        await auto_start_friendly()
+        print("Friendly match job executed.")
+    else:
+        await auto_start_ladder()
+        print("Ladder match job executed.")
+    # Alternate the job for next execution
+    next_job["is_friendly"] = not next_job["is_friendly"]
+
+scheduler.add_job(lambda: asyncio.run(alternating_task()), 'interval', minutes=25)
+scheduler.start()        
+
+# ✅ API endpoint to manually trigger automation from FE
+@app.post("/automation/toggle")
+def toggle_automation(state: bool):
+    global friendlyAutomationEnabled
+    friendlyAutomationEnabled = state
+    status = "enabled" if friendlyAutomationEnabled else "disabled"
+    print(f"⚙️ Automation {status} via frontend.")
+    return {"friendlyAutomationEnabled": friendlyAutomationEnabled}
+
+@app.get("/automation/status")
+def get_automation_status():
+    return {"friendlyAutomationEnabled": friendlyAutomationEnabled}
+
+@app.post("/friendlies/manual-auto-match")
+async def manual_auto_match():
+    await auto_start_friendly()
+    return {"message": "✅ Friendly match manually triggered"}
+
+@app.post("/ladder/manual-auto-match")
+async def manual_auto_match():
+    await auto_start_ladder()
+    return {"message": "✅ Ladder match manually triggered"}

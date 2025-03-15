@@ -321,6 +321,7 @@ CLUB_ID = "3ac80dc7-3c45-49c5-9b2a-e2c9c8972342"
 friendly_match_counter = 0
 ladder_match_counter = 0
 last_friendly_reset_date = datetime.now(timezone.utc).date()
+last_ladder_reset_date = datetime.now(timezone.utc).date()
 
 # ✅ Automation status (initially off, controlled via FE later)
 friendlyAutomationEnabled = False

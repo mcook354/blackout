@@ -50,14 +50,15 @@ def predict_physical_attribute_growth(player):
     # Training slots per position (from age 21 onwards)
     position_training = {
         "Prop": {"strength": 2, "agility": 2, "power": 2, "endurance": 1},
-        "Hooker": {"strength": 2, "agility": 2, "power": 2, "endurance": 1},
+        "Hooker": {"strength": 2, "coordination": 2, "power": 2, "agility": 1},
         "Lock": {"strength": 2, "agility": 2, "power": 2, "endurance": 1},
         "Flanker": {"strength": 2, "agility": 2, "power": 2, "endurance": 1},
         "No8": {"strength": 2, "agility": 2, "power": 2, "endurance": 1},
         "Scrumhalf": {"acceleration": 2, "agility": 1, "speed": 2, "coordination": 2},
         "Flyhalf": {"acceleration": 2, "agility": 1, "speed": 2, "coordination": 2},
-        "Winger": {"speed": 3, "acceleration": 2, "agility": 2},
-        "Center": {"speed": 2, "power": 2, "acceleration": 2, "agility": 1}
+        "Winger": {"speed": 2, "acceleration": 2, "agility": 2, "power": 1},
+        "Center": {"speed": 2, "power": 2, "acceleration": 2, "agility": 1},
+        "Fullback": {"acceleration": 2, "agility": 1, "speed": 2, "coordination": 2}
     }
 
     training_slots = position_training.get(position, {attr: 1 for attr in attributes.keys()})
@@ -127,7 +128,7 @@ player_example = {
     }
 }
 
-# Run Prediction
+# Run Prediction of physical attribute growth
 predicted_attributes = predict_physical_attribute_growth(player_example)
 print("Predicted Physical Attributes at Age 29:", predicted_attributes)
 

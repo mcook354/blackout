@@ -146,7 +146,10 @@ const App = () => {
       </div>
   
       {loading ? (
-        <p>Loading {activeTab === "players" ? "players" : "academy"}...</p>
+        <p>
+        Loading{" "}
+        {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}...
+      </p>
       ) : activeTab === "players" ? (
         allPositions.map((position) => (
           <div key={position} className="expandable-section">

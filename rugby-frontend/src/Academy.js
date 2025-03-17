@@ -21,7 +21,9 @@ const Academy = ({ players, clubId, getClubName }) => {
     useEffect(() => {
       const fetchProspectData = async () => {
         try {
-          const response = await fetch(`${BACKEND_URL}/academy/${clubId}`);
+          const response = await fetch(
+            `https://blackout-it05.onrender.com/academy/${clubId}`
+          );
   
           if (!response.ok) {
             throw new Error(`Failed to fetch academy prospect: ${response.statusText}`);

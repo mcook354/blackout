@@ -28,7 +28,7 @@ def root():
     return {"message": "Friendly Match Automation API is running."}
 
 # ✅ API Setup
-API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaXNSZWZyZXNoIjp0cnVlLCJpYXQiOjE3NDExMDY2NjAsImV4cCI6MTc1NjY1ODY2MH0.gpXlsXtOQYSxDT2IytAScE1mgOP_kvfVkJbNWNpXQz4"
+API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaXNSZWZyZXNoIjp0cnVlLCJpYXQiOjE3NDIzMTM3NjIsImV4cCI6MTc1Nzg2NTc2Mn0.WRaDBa9JJQRKhnKe3fAq0y00VIEX2vw1QgRKTeaCCTU"
 BASE_URL = "https://api.blackoutrugby.com/v1/"
 HEADERS = {
     "Authorization": f"Bearer {API_KEY}"
@@ -376,7 +376,8 @@ async def start_ladder_match(request: Request):
             "type": "ladder-clubs",
             "attributes": {
                 "challengerId": challenger_club,
-                "challengeeId": challengee_club
+                "challengeeId": challengee_club,
+                "medpackCard": "LadderMedpack:0"
             }
         }
     }
@@ -464,7 +465,7 @@ async def alternating_task():
     # Alternate the job for next execution
     next_job["is_friendly"] = not next_job["is_friendly"]
 
-scheduler.add_job(lambda: asyncio.run(alternating_task()), 'interval', minutes=25)
+scheduler.add_job(lambda: asyncio.run(alternating_task()), 'interval', minutes=15)
 scheduler.start()        
 
 # ✅ API endpoint to manually trigger automation from FE

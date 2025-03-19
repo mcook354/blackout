@@ -453,20 +453,32 @@ async def auto_start_ladder():
 
 scheduler = BackgroundScheduler()
 
-next_job = {"is_friendly": True}
+async def friendly_task():
+    await auto_start_friendly()
+    print("Friendly match job executed.")
 
-async def alternating_task():
-    if next_job["is_friendly"]:
-        await auto_start_friendly()
-        print("Friendly match job executed.")
-    else:
-        await auto_start_ladder()
-        print("Ladder match job executed.")
-    # Alternate the job for next execution
-    next_job["is_friendly"] = not next_job["is_friendly"]
+async def ladder_task():
+    await auto_start_ladder()
+    print("Ladder match job executed.")
 
-scheduler.add_job(lambda: asyncio.run(alternating_task()), 'interval', minutes=15)
-scheduler.start()        
+# Helper to run async tasks
+def run_async_task(coro):
+    asyncio.run(coro())
+
+# Schedule the friendly task every 25 minutes and 30 seconds (full cycle duration)
+scheduler.add_job(run_async_task, 'interval', 
+                  args=[friendly_task], 
+                  minutes=25, seconds=30, 
+                  next_run_time=None)  # next_run_time=None starts immediately
+
+# Schedule the ladder task every 25 minutes and 30 seconds, but start it 30 seconds after friendly
+from datetime import datetime, timedelta
+scheduler.add_job(run_async_task, 'interval', 
+                  args=[ladder_task], 
+                  minutes=25, seconds=30, 
+                  next_run_time=datetime.now() + timedelta(seconds=30))
+
+scheduler.start()
 
 # ✅ API endpoint to manually trigger automation from FE
 @app.post("/automation/toggle")

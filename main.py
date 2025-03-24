@@ -28,7 +28,7 @@ def root():
     return {"message": "Friendly Match Automation API is running."}
 
 # ✅ API Setup
-API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaXNSZWZyZXNoIjp0cnVlLCJpYXQiOjE3NDIzMTM3NjIsImV4cCI6MTc1Nzg2NTc2Mn0.WRaDBa9JJQRKhnKe3fAq0y00VIEX2vw1QgRKTeaCCTU"
+API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzYTM1MzE1Yi0zMDRhLTRhZTctOWNmZi1hNmVmYjlhOTYxZGUiLCJjbHVicyI6WyIzYWM4MGRjNy0zYzQ1LTQ5YzUtOWIyYS1lMmM5Yzg5NzIzNDIiLCIzY2VkYzA4NC02NDA3LTRmYzYtYmU5MC1mYmNhYTZmNWVmNjYiXSwic2Vzc2lvbkRhdGEiOnt9LCJkZXZpY2UiOiJub19kZXZpY2VfaWQiLCJzcG9ydCI6InJ1Z2J5IiwiaXNSZWZyZXNoIjp0cnVlLCJpYXQiOjE3NDI4MDg4OTgsImV4cCI6MTc1ODM2MDg5OH0.sjVoskPBhr1Jc8eRnk-0lWIiHTaWa-GtruASDUQXisY"
 BASE_URL = "https://api.blackoutrugby.com/v1/"
 HEADERS = {
     "Authorization": f"Bearer {API_KEY}"
@@ -243,15 +243,24 @@ async def start_friendly_match(request: Request):
     if not initiator_club or not opponent_club:
         raise HTTPException(status_code=400, detail="Missing club IDs")
 
+    # ✅ Choose lineup explicitly based on friendly match count
+    if friendly_match_counter % 2 == 0:
+        selected_lineup = LINEUP_1_ID
+        print(f"Using Lineup 1: {LINEUP_1_ID}")
+    else:
+        selected_lineup = LINEUP_2_ID
+        print(f"Using Lineup 2: {LINEUP_2_ID}")
+
     url = f"{BASE_URL}friendlies"
     payload = {
         "data": {
             "type": "friendlies",
             "attributes": {
-                "instant": "true",
-                "isTrainingMatch": "true",
-                "initiatorClub": initiator_club,
-                "opponentClub": opponent_club
+                "instant": True,
+                "isTrainingMatch": True,
+                "initiatorClub": CLUB_ID,
+                "opponentClub": opponent_club,
+                "lineups": selected_lineup  # ✅ Lineup explicitly passed here
             }
         }
     }
@@ -271,12 +280,14 @@ CLUB_ID = "3ac80dc7-3c45-49c5-9b2a-e2c9c8972342"
 
 # ✅ Track daily friendly matches
 friendly_match_counter = 0
-ladder_match_counter = 0
 last_friendly_reset_date = datetime.now(timezone.utc).date()
-last_ladder_reset_date = datetime.now(timezone.utc).date()
 
 # ✅ Automation status (initially off, controlled via FE later)
 friendlyAutomationEnabled = False
+
+# ✅ Define the lineups explicitly (update these IDs to your actual lineup IDs)
+LINEUP_1_ID = "66759c1a-cd66-48c3-9e4e-885b12c33761"
+LINEUP_2_ID = "913cb9fb-a9ea-4e84-9a59-204e5923ae96"
 
 async def auto_start_friendly():
     global friendly_match_counter, last_friendly_reset_date, friendlyAutomationEnabled
@@ -293,7 +304,7 @@ async def auto_start_friendly():
         print("🔄 Daily match counter reset.")
 
     # ✅ Limit the number of friendly matches per day
-    MAX_MATCHES_PER_DAY = 10
+    MAX_MATCHES_PER_DAY = 14
     if friendly_match_counter >= MAX_MATCHES_PER_DAY:
         print("🚫 Maximum daily friendly matches reached.")
         return
@@ -314,6 +325,14 @@ async def auto_start_friendly():
         opponent_club = clubs[0]["id"]
         print(f"🤝 Selected opponent: {opponent_club}")
 
+        # ✅ Choose lineup explicitly based on friendly match count
+        if friendly_match_counter % 2 == 0:
+            selected_lineup = LINEUP_1_ID
+            print(f"Using Lineup 1: {LINEUP_1_ID}")
+        else:
+            selected_lineup = LINEUP_2_ID
+            print(f"Using Lineup 2: {LINEUP_2_ID}")
+
         match_url = f"{BASE_URL}friendlies"
         payload = {
             "data": {
@@ -323,6 +342,7 @@ async def auto_start_friendly():
                     "isTrainingMatch": True,
                     "initiatorClub": CLUB_ID,
                     "opponentClub": opponent_club,
+                    "lineups": selected_lineup  # ✅ Lineup explicitly passed here
                 }
             }
         }
@@ -392,92 +412,8 @@ async def start_ladder_match(request: Request):
 
     return response.json()
 
-async def auto_start_ladder():
-    global ladderAutomationEnabled, ladder_match_counter, last_ladder_reset_date
-
-    # clearly control via FE (add FE toggle later if desired)
-    ladderAutomationEnabled = True  # Explicitly toggle or manage via frontend later
-
-    if not ladderAutomationEnabled:
-        print("🛑 Ladder Automation disabled; skipping execution.")
-        return
-
-    today = datetime.now(timezone.utc).date()
-    if today != last_ladder_reset_date:
-        ladder_match_counter = 0
-        last_ladder_reset_date = today
-        print("🔄 Daily ladder match counter reset.")
-
-    MAX_LADDER_MATCHES_PER_DAY = 10
-    if ladder_match_counter >= MAX_LADDER_MATCHES_PER_DAY:
-        print("🚫 Max daily ladder matches reached.")
-        return
-
-    search_url = f"{BASE_URL}ladder?club_id={CLUB_ID}"
-
-    try:
-        async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
-            search_response = await client.get(search_url)
-
-        clubs = search_response.json().get("data", [])
-        available_clubs = [club for club in clubs if club["attributes"]["isChallengeable"]]
-
-        if not available_clubs:
-            print("⚠️ No available ladder clubs found.")
-            return
-
-        opponent_club = available_clubs[0]["id"]
-        print(f"🤝 Ladder opponent selected: {opponent_club}")
-
-        payload = {
-            "data": {
-                "type": "ladderMatch",
-                "attributes": {
-                    "challengerClub": CLUB_ID,
-                    "challengeeClub": opponent_club,
-                }
-            }
-        }
-
-        async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
-            match_response = await client.post(f"{BASE_URL}ladder-matches", json=payload)
-
-        if match_response.status_code == 201:
-            ladder_match_counter += 1
-            print(f"✅ Ladder match started ({ladder_match_counter}/{MAX_LADDER_MATCHES_PER_DAY}).")
-        else:
-            print(f"❌ Ladder match failed: {match_response.text}")
-
-    except Exception as e:
-        print(f"❌ Ladder automation exception: {e}")
-
 scheduler = BackgroundScheduler()
-
-async def friendly_task():
-    await auto_start_friendly()
-    print("Friendly match job executed.")
-
-async def ladder_task():
-    await auto_start_ladder()
-    print("Ladder match job executed.")
-
-# Helper to run async tasks
-def run_async_task(coro):
-    asyncio.run(coro())
-
-# Schedule the friendly task every 25 minutes and 30 seconds (full cycle duration)
-scheduler.add_job(run_async_task, 'interval', 
-                  args=[friendly_task], 
-                  minutes=25, seconds=30, 
-                  next_run_time=None)  # next_run_time=None starts immediately
-
-# Schedule the ladder task every 25 minutes and 30 seconds, but start it 30 seconds after friendly
-from datetime import datetime, timedelta
-scheduler.add_job(run_async_task, 'interval', 
-                  args=[ladder_task], 
-                  minutes=25, seconds=30, 
-                  next_run_time=datetime.now() + timedelta(seconds=30))
-
+scheduler.add_job(lambda: asyncio.run(auto_start_friendly()), "interval", minutes=12)
 scheduler.start()
 
 # ✅ API endpoint to manually trigger automation from FE
@@ -497,8 +433,3 @@ def get_automation_status():
 async def manual_auto_match():
     await auto_start_friendly()
     return {"message": "✅ Friendly match manually triggered"}
-
-@app.post("/ladder/manual-auto-match")
-async def manual_auto_match():
-    await auto_start_ladder()
-    return {"message": "✅ Ladder match manually triggered"}

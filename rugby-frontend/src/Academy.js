@@ -171,7 +171,6 @@ const getSkillLabel = (skill) => {
     
     <div className="academy-container">
         <h1>👶 {getClubName(clubId)} Academy</h1>
-        <pre>{JSON.stringify(skillLevels, null, 2)}</pre>
     {players && players.length > 0 && (
     <div className="scouting-priorities">
         <h2>🔎 High-Priority Positions for Scouting</h2>

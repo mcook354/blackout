@@ -6,6 +6,7 @@ const Ladders = ({ clubId }) => {
   const [selectedOpponent, setSelectedOpponent] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [automationEnabled, setAutomationEnabled] = useState(false);
 
   const fetchLadderClubs = async () => {
     if (!clubId) return;

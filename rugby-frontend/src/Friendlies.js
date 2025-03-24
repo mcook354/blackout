@@ -75,7 +75,7 @@ const Friendlies = ({ clubId }) => {
 
   // Fetch current automation status on component mount
   useEffect(() => {
-    fetch(`https://blackout-it05.onrender.com/automation/status`)
+    fetch(`https://blackout-it05.onrender.com/friendlies/automation/status`)
     .then((res) => {
       if (!res.ok) throw new Error("Network response was not ok");
       return res.json();
@@ -88,7 +88,7 @@ const Friendlies = ({ clubId }) => {
 }, []);
 
 const toggleAutomation = () => {
-  fetch(`https://blackout-it05.onrender.com/automation/toggle?state=${!automationEnabled}`, {
+  fetch(`https://blackout-it05.onrender.com/friendlies/automation/toggle?state=${!automationEnabled}`, {
     method: "POST",
   })
     .then((res) => {

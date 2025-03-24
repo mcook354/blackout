@@ -278,12 +278,13 @@ async def start_friendly_match(request: Request):
 # ✅ The club ID to run the job for
 CLUB_ID = "3ac80dc7-3c45-49c5-9b2a-e2c9c8972342"
 
-# ✅ Track daily friendly matches
 friendly_match_counter = 0
+ladder_match_counter = 0
 last_friendly_reset_date = datetime.now(timezone.utc).date()
+last_ladder_reset_date = datetime.now(timezone.utc).date()
 
-# ✅ Automation status (initially off, controlled via FE later)
 friendlyAutomationEnabled = False
+ladderAutomationEnabled = False 
 
 # ✅ Define the lineups explicitly (update these IDs to your actual lineup IDs)
 LINEUP_1_ID = "66759c1a-cd66-48c3-9e4e-885b12c33761"
@@ -412,12 +413,70 @@ async def start_ladder_match(request: Request):
 
     return response.json()
 
+async def auto_start_ladder():
+    global ladder_match_counter, last_ladder_reset_date, ladderAutomationEnabled
+
+    if not ladderAutomationEnabled:
+        print("🛑 Ladder automation disabled; skipping execution.")
+        return
+
+    today = datetime.now(timezone.utc).date()
+    if today != last_ladder_reset_date:
+        ladder_match_counter = 0
+        last_ladder_reset_date = today
+        print("🔄 Daily ladder match counter reset.")
+
+    MAX_LADDER_MATCHES_PER_DAY = 3
+    if ladder_match_counter >= MAX_LADDER_MATCHES_PER_DAY:
+        print("🚫 Maximum daily ladder matches reached.")
+        return
+
+    search_url = f"{BASE_URL}ladder?club_id={CLUB_ID}"
+
+    try:
+        async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
+            search_response = await client.get(search_url)
+
+        clubs = search_response.json().get("data", [])
+        available_clubs = [club for club in clubs if club["attributes"]["isChallengeable"]]
+
+        if not available_clubs:
+            print("⚠️ No available ladder clubs found.")
+            return
+
+        opponent_club = available_clubs[0]["id"]
+        print(f"🤝 Ladder opponent selected: {opponent_club}")
+
+        payload = {
+            "data": {
+                "type": "ladderMatch",
+                "attributes": {
+                    "challengerClub": CLUB_ID,
+                    "challengeeClub": opponent_club,
+                }
+            }
+        }
+
+        async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
+            match_response = await client.post(f"{BASE_URL}ladder-matches", json=payload)
+
+        if match_response.status_code == 201:
+            ladder_match_counter += 1
+            print(f"✅ Ladder match started successfully ({ladder_match_counter}/{MAX_LADDER_MATCHES_PER_DAY}).")
+        else:
+            print(f"❌ Ladder match failed: {match_response.text}")
+
+    except Exception as e:
+        print(f"❌ Ladder automation exception: {e}")
+
+
 scheduler = BackgroundScheduler()
 scheduler.add_job(lambda: asyncio.run(auto_start_friendly()), "interval", minutes=12)
+scheduler.add_job(lambda: asyncio.run(auto_start_ladder()), "interval", minutes=25)
 scheduler.start()
 
 # ✅ API endpoint to manually trigger automation from FE
-@app.post("/automation/toggle")
+@app.post("/friendlies/automation/toggle")
 def toggle_automation(state: bool):
     global friendlyAutomationEnabled
     friendlyAutomationEnabled = state
@@ -425,7 +484,7 @@ def toggle_automation(state: bool):
     print(f"⚙️ Automation {status} via frontend.")
     return {"friendlyAutomationEnabled": friendlyAutomationEnabled}
 
-@app.get("/automation/status")
+@app.get("/friendlies/automation/status")
 def get_automation_status():
     return {"friendlyAutomationEnabled": friendlyAutomationEnabled}
 
@@ -433,3 +492,23 @@ def get_automation_status():
 async def manual_auto_match():
     await auto_start_friendly()
     return {"message": "✅ Friendly match manually triggered"}
+
+# Ladder automation toggle endpoint
+@app.post("/ladder/automation/toggle")
+def toggle_ladder_automation(state: bool):
+    global ladderAutomationEnabled
+    ladderAutomationEnabled = state
+    status = "enabled" if ladderAutomationEnabled else "disabled"
+    print(f"⚙️ Ladder Automation {status} via frontend.")
+    return {"ladderAutomationEnabled": ladderAutomationEnabled}
+
+# Ladder automation status endpoint 
+@app.get("/ladder/automation/status")
+def get_ladder_automation_status():
+    return {"ladderAutomationEnabled": ladderAutomationEnabled}
+
+# Manual ladder trigger endpoint 
+@app.post("/ladder/manual-auto-match")
+async def manual_ladder_auto_match():
+    await auto_start_ladder()
+    return {"message": "✅ Ladder match manually triggered"}

@@ -426,7 +426,7 @@ async def auto_start_ladder():
         last_ladder_reset_date = today
         print("🔄 Daily ladder match counter reset.")
 
-    MAX_LADDER_MATCHES_PER_DAY = 3
+    MAX_LADDER_MATCHES_PER_DAY = 8
     if ladder_match_counter >= MAX_LADDER_MATCHES_PER_DAY:
         print("🚫 Maximum daily ladder matches reached.")
         return
@@ -453,6 +453,7 @@ async def auto_start_ladder():
                 "attributes": {
                     "challengerClub": CLUB_ID,
                     "challengeeClub": opponent_club,
+                    "medpackCard": "LadderMedpack:0"
                 }
             }
         }

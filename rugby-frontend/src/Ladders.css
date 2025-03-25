@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.button {
+  padding: 8px;
+}
+
 .button.enabled {
     background-color: #4caf50; /* Green for active */
   }

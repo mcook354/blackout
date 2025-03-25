@@ -105,15 +105,19 @@ const Ladders = ({ clubId }) => {
     <div className="ladder-container">
       <h2>🪜 Instant Ladder Matches</h2>
 
+      <div>
       <button onClick={toggleAutomation} className={`button ${automationEnabled ? "enabled" : "disabled"}`}>
         {automationEnabled ? "Disable Automation 🔴" : "Enable Automation 🟢"}
       </button>
+      </div>
 
       {statusMessage && <p className="status-message">{statusMessage}</p>}
 
+      <div>
       <button onClick={fetchLadderClubs} className="button">
         Find Opponents
       </button>
+      </div>
 
       {loading && <p>Loading available clubs...</p>}
       {statusMessage && <p className="status-message">{statusMessage}</p>}

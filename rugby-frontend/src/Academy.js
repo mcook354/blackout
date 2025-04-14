@@ -164,7 +164,7 @@ const getSkillLabel = (skill) => {
         inDevelopment: counts.inDevelopment
       }));
   
-    return sortedPositions.slice(0, 3); // Return top 3 positions needing scouting
+    return sortedPositions.slice(0, 4); // Return top 4 positions needing scouting
   };    
 
   return (

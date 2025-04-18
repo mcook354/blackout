@@ -459,7 +459,7 @@ async def auto_start_ladder():
         }
 
         async with httpx.AsyncClient(headers=ALT_HEADERS) as client:
-            match_response = await client.post(f"{BASE_URL}ladder-matches", json=payload)
+            match_response = await client.post(f"{BASE_URL}ladder/start-match", json=payload)
 
         if match_response.status_code == 201:
             ladder_match_counter += 1

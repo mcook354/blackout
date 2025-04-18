@@ -431,7 +431,7 @@ async def auto_start_ladder():
         print("🚫 Maximum daily ladder matches reached.")
         return
 
-    search_url = f"{BASE_URL}ladder?club_id={CLUB_ID}"
+    search_url = f"{BASE_URL}ladder-clubs?ladder=global&club={CLUB_ID}"
 
     try:
         async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:

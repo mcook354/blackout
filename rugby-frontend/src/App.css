@@ -176,11 +176,3 @@ h2 {
   margin-top: 30px;
 }
 
-.button.enabled {
-  background-color: #4caf50; /* Green for active */
-}
-
-.button.disabled {
-  background-color: #f44336; /* Red for inactive */
-}
-

@@ -220,7 +220,7 @@ async def get_random_clubs(club_id: str = Query(..., description="Club GUID to f
 
     params = {
         "instant": "true",
-        "levelRange": "67,73",
+        "levelRange": "70,76",
         "club": club_id  # ✅ Pass the club_id as a query param
     }
 
@@ -310,7 +310,7 @@ async def auto_start_friendly():
         print("🚫 Maximum daily friendly matches reached.")
         return
 
-    search_url = f"{BASE_URL}friendlies?instant=true&levelRange=67,73&club={CLUB_ID}"
+    search_url = f"{BASE_URL}friendlies?instant=true&levelRange=70,76&club={CLUB_ID}"
 
     try:
         async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
@@ -470,6 +470,17 @@ async def auto_start_ladder():
     except Exception as e:
         print(f"❌ Ladder automation exception: {e}")
 
+@app.get("/top-players")
+async def get_top_players(club_id: str = Query(..., description="Club GUID to fetch top players for")):
+    players_url = f"{BASE_URL}players?filter%5Bclub%5D={club_id}"
+
+    async with httpx.AsyncClient(headers=HEADERS) as client:
+        response = await client.get(players_url)
+
+        if response.status_code != 200:
+            return {"error": "Failed to fetch player data"}
+
+        players_data = response.json().get("data", [])
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(lambda: asyncio.run(auto_start_friendly()), "interval", minutes=12)

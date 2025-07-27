@@ -220,7 +220,7 @@ async def get_random_clubs(club_id: str = Query(..., description="Club GUID to f
 
     params = {
         "instant": "true",
-        "levelRange": "72,77",
+        "levelRange": "76,82",
         "club": club_id  # ✅ Pass the club_id as a query param
     }
 
@@ -310,7 +310,7 @@ async def auto_start_friendly():
         print("🚫 Maximum daily friendly matches reached.")
         return
 
-    search_url = f"{BASE_URL}friendlies?instant=true&levelRange=72,78&club={CLUB_ID}"
+    search_url = f"{BASE_URL}friendlies?instant=true&levelRange=76,82&club={CLUB_ID}"
 
     try:
         async with httpx.AsyncClient(headers=ALT_HEADERS, timeout=20.0) as client:
